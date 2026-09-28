@@ -1,0 +1,213 @@
+/* Larger editorial type and distinct static-image compositions for each award. */
+.award-heading h2 { font-size: clamp(40px, 4.7vw, 68px); }
+.layout-hero .award-heading h2 { font-size: clamp(52px, 6.2vw, 88px); }
+.award-description { font-size: 16px; line-height: 1.85; }
+.layout-editorial .award-description, .layout-minimal .award-description { font-size: 20px; }
+.winner-reveal h3 { font-size: clamp(27px, 2.4vw, 39px); }
+.judge-note p { font-size: 14px; line-height: 1.8; }
+.guest-copy h3 { font-size: 30px; }
+.guest-copy p { font-size: 12px; }
+
+.winner-gallery {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 9px;
+  gap: 9px;
+  overflow: hidden;
+  background: #141812;
+}
+.winner-gallery img { width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: cover; display: block; }
+.winner-gallery--hero { grid-template: 1fr 1fr / 1.15fr .85fr; }
+.winner-gallery--hero img:first-child { grid-row: 1 / 3; }
+.winner-gallery--split { grid-template: 1.18fr .82fr / 1fr 1fr; }
+.winner-gallery--split img:first-child { grid-column: 1 / 3; }
+.winner-gallery--editorial { grid-template: 1fr 1fr / 1.2fr .8fr; padding: 0; gap: 7px; background: transparent; }
+.winner-gallery--editorial img:first-child { grid-row: 1 / 3; }
+.winner-gallery--image { grid-template: 1fr / 1.35fr .65fr; padding: 0; gap: 8px; }
+.winner-gallery--image img:first-child { grid-row: 1 / 3; }
+.winner-gallery--image img:nth-child(2), .winner-gallery--image img:nth-child(3) { min-height: 0; }
+.winner-gallery--minimal { grid-template: 1fr / 1fr 1fr 1fr; padding: 0; gap: 4px; background: transparent; }
+.winner-gallery--minimal img { opacity: .88; }
+.winner-gallery--gallery { grid-template: 1fr / 1.12fr .94fr .94fr; gap: 10px; padding: 0; background: transparent; }
+.winner-gallery--gallery img:first-child { transform: translateY(-8px); }
+.winner-gallery--gallery img:nth-child(2) { transform: translateY(8px); }
+.winner-gallery--chaos { grid-template: 1fr 1fr / 1fr 1fr; padding: 12px 17px 12px 10px; gap: 7px; overflow: visible; background: transparent; }
+.winner-gallery--chaos img { border: 1px solid #ff9a6966; box-shadow: 0 8px 18px #0005; }
+.winner-gallery--chaos img:first-child { grid-row: 1 / 3; transform: rotate(-2deg) scale(1.02); }
+.winner-gallery--chaos img:nth-child(2) { transform: rotate(2deg); }
+.winner-gallery--chaos img:nth-child(3) { transform: rotate(-1deg); }
+.winner-gallery--time { grid-template: 1fr / repeat(3, 1fr); gap: 6px; padding: 0; background: transparent; }
+.winner-gallery--time img { border-top: 2px solid #7edbffb0; }
+.winner-gallery--time img:nth-child(2) { transform: translateY(12px); }
+.winner-gallery--time img:nth-child(3) { transform: translateY(24px); }
+.winner-gallery--reveal { grid-template: 1fr .72fr / 1fr 1fr; padding: 4px; gap: 6px; }
+.winner-gallery--reveal img:first-child { grid-column: 1 / 3; }
+.winner-gallery--warm { grid-template: 1fr .8fr / 1.1fr .9fr; padding: 9px; gap: 8px; background: #201a17; }
+.winner-gallery--warm img:first-child { grid-row: 1 / 3; border-radius: 42% 42% 2px 2px; }
+.winner-gallery--warm img:nth-child(2) { transform: translateY(5px); }
+.winner-gallery--warm img:nth-child(3) { transform: translateY(-4px); }
+.winner-gallery--count-2.winner-gallery--hero { grid-template-columns: 1.05fr .95fr; }
+.winner-gallery--count-2.winner-gallery--hero img:first-child,
+.winner-gallery--count-2.winner-gallery--hero img:nth-child(2),
+.winner-gallery--count-2.winner-gallery--editorial img:nth-child(2),
+.winner-gallery--count-2.winner-gallery--image img:nth-child(2),
+.winner-gallery--count-2.winner-gallery--chaos img:nth-child(2),
+.winner-gallery--count-2.winner-gallery--warm img:nth-child(2) { grid-row: 1 / 3; }
+.winner-gallery--count-2.winner-gallery--split img:nth-child(2),
+.winner-gallery--count-2.winner-gallery--reveal img:nth-child(2) { grid-column: 1 / 3; }
+.winner-gallery--count-2.winner-gallery--minimal,
+.winner-gallery--count-2.winner-gallery--gallery,
+.winner-gallery--count-2.winner-gallery--time { grid-template-columns: 1fr 1fr; }
+
+/* A casual after-show envelope, visually set apart from the ten regular awards. */
+.layout-special {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 235px;
+  gap: 3.8vw;
+  padding: 0 5.2vw 0 9vw;
+  align-items: center;
+  animation: scene-in .48s cubic-bezier(.22,.7,.2,1) both;
+}
+.layout-special .award-stage__main {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(18px, 2.5vw, 34px);
+  border: 1px solid color-mix(in srgb, var(--accent-soft) 27%, transparent);
+  border-top: 4px solid var(--accent-soft);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--accent-soft) 6%, var(--bg)), var(--bg) 58%);
+}
+.layout-special .award-stage__main::after {
+  content: "AFTER SHOW";
+  position: absolute;
+  z-index: -1;
+  right: 4%;
+  bottom: 11%;
+  color: color-mix(in srgb, var(--accent-soft) 10%, transparent);
+  font: 800 clamp(42px, 8vw, 120px)/.8 var(--type, sans-serif);
+  letter-spacing: -.08em;
+  pointer-events: none;
+}
+.layout-special .award-heading { border-bottom-style: dashed; }
+.layout-special .award-visual { aspect-ratio: 2.05; transform: rotate(-1deg); }
+.layout-special .judge-note { border-color: var(--accent-soft); }
+.layout-special .judge-note__label { color: var(--accent-soft); }
+
+/* Let the annual Guest feel present in different ways instead of repeating one pose. */
+.layout-hero .guest-rail { align-self: start; margin-top: 5vh; }
+.layout-split .guest-rail { align-self: end; margin-bottom: 2vh; transform: rotate(-.7deg); }
+.layout-editorial .guest-rail { align-self: center; margin-top: 9vh; }
+.layout-editorial .guest-card { grid-template-columns: 1fr; gap: 10px; }
+.layout-editorial .guest-art { width: 64%; margin-left: auto; aspect-ratio: 1.1; }
+.layout-image .guest-rail { align-self: start; margin-top: 2vh; transform: translateX(-7px) rotate(1deg); }
+.layout-image .guest-card { grid-template-columns: 1fr; gap: 9px; }
+.layout-image .guest-art { aspect-ratio: 1.05; }
+.layout-minimal .guest-rail { align-self: end; margin-bottom: 7vh; opacity: .84; }
+.layout-gallery .guest-rail { align-self: start; transform: rotate(1deg) translateY(8px); }
+.layout-chaos .guest-rail { align-self: center; transform: rotate(-2deg) translateY(10px); }
+.layout-time .guest-rail { align-self: end; transform: translateY(-9px); }
+.layout-reveal .guest-rail { align-self: start; transform: rotate(-1deg) translateY(5px); }
+.layout-warm .guest-rail { align-self: center; transform: translateY(4vh); }
+.layout-special .guest-rail { align-self: start; margin-top: 9vh; transform: rotate(1deg); }
+
+.winner-time-mark { position: absolute; z-index: 3; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; pointer-events: none; text-align: center; }
+.winner-time-mark span { color: var(--accent); font: 800 clamp(30px, 4.4vw, 65px)/.92 var(--mono); letter-spacing: -.075em; text-shadow: 0 2px 16px var(--bg); }
+.winner-time-mark strong { color: var(--fg); font: 700 9px/1 var(--mono); letter-spacing: .2em; padding: 7px 10px; background: color-mix(in srgb, var(--bg) 82%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent); }
+.layout-time .placeholder-mark { opacity: .24; }
+
+@media (max-width: 900px) and (min-width: 641px) {
+  .layout-special { grid-template-columns: minmax(0, 1fr) 175px; padding-left: 5vw; padding-right: 5vw; gap: 3vw; }
+  .layout-editorial .guest-rail { margin-top: 5vh; }
+  .layout-image .guest-rail { transform: translateX(-3px) rotate(1deg); }
+}
+
+/* Keep each guest quote in its own grid area; never place text on top of a game image. */
+.award-content { position: relative; min-height: 0; grid-template-areas: "story art" "quote art"; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); grid-template-rows: minmax(0, 1fr) auto; }
+.award-story { grid-area: story; min-width: 0; }
+.award-stage .award-visual { grid-area: art; min-width: 0; min-height: 0; aspect-ratio: auto; }
+.judge-note { grid-area: quote; position: relative; inset: auto; z-index: auto; align-self: center; justify-self: center; width: 86%; max-width: 520px; margin: 8px auto 0; padding: 10px 14px; transform: none; background: transparent; border: 0; border-left: 2px solid var(--accent); }
+.layout-hero .judge-note { justify-self: end; width: 90%; text-align: right; border-left: 0; border-right: 2px solid var(--accent); padding: 8px 14px; }
+.layout-split .award-content { grid-template-areas: "story art" ". quote"; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); grid-template-rows: minmax(0, 1fr) auto; }
+.layout-split .judge-note { justify-self: center; width: 90%; border-left: 0; border-top: 1px solid #7edbff99; padding: 9px 10px 0; text-align: center; transform: translateY(-14px); }
+.layout-editorial .judge-note { justify-self: start; width: 92%; margin-left: 0; border-left: 0; border-top: 1px solid #fff6; padding: 10px 0 0; }
+.layout-editorial .judge-note p { font: italic 16px/1.65 Georgia, "Noto Serif CJK SC", serif; }
+.layout-image .award-content { position: relative; inset: auto; display: grid; grid-template-areas: "story art" "quote art"; grid-template-columns: minmax(180px, .42fr) minmax(0, 1.58fr); grid-template-rows: minmax(0, 1fr) auto; }
+.layout-image .award-stage__main { justify-content: flex-start; }
+.layout-image .award-heading { position: relative; top: auto; right: auto; bottom: auto; left: auto; z-index: auto; border: 0; border-bottom: 1px solid #ffffff26; padding-bottom: 15px; text-shadow: none; }
+.layout-image .award-content { flex: 1; }
+.layout-image .award-story { position: relative; z-index: auto; left: auto; bottom: auto; max-width: none; padding: 12px 10px 12px 0; background: transparent; border: 0; }
+.layout-image .judge-note { justify-self: start; width: 95%; margin-left: 0; padding-left: 10px; }
+.layout-minimal .judge-note { border: 0; border-top: 1px solid #ffffff30; padding: 10px 0 0; text-align: center; }
+.layout-minimal .judge-note p { font: italic 16px/1.65 Georgia, "Noto Serif CJK SC", serif; color: #d3d7c8; }
+.layout-gallery .award-content { grid-template-areas: "story art" ". quote"; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); grid-template-rows: minmax(0, 1fr) auto; }
+.layout-gallery .judge-note { justify-self: center; width: 90%; border-left: 0; border-top: 1px solid #ffffff35; padding: 8px 10px 0; text-align: center; }
+.layout-chaos .award-content { grid-template-areas: "story art" ". quote"; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); grid-template-rows: minmax(0, 1fr) auto; }
+.layout-chaos .judge-note { justify-self: center; width: 82%; border-color: #ff9a69; background: #211913a8; transform: translateY(-12px) rotate(-1deg); }
+.layout-chaos .judge-note__label { color: #ff9a69; }
+.layout-time .award-content { grid-template-areas: "story art" "quote quote"; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); grid-template-rows: minmax(0, 1fr) auto; }
+.layout-time .judge-note { justify-self: end; width: 70%; border-left: 0; border-top: 1px dashed #7edbff8a; padding: 8px 4px 0; text-align: right; }
+.layout-time .judge-note p { font-size: 16px; color: #d5eaff; }
+.layout-reveal .award-content { grid-template-areas: "story art" ". quote"; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); grid-template-rows: minmax(0, 1fr) auto; }
+.layout-reveal .judge-note { justify-self: end; width: 78%; border-left: 0; border-bottom: 1px solid var(--accent); padding: 8px 10px; text-align: right; }
+.layout-warm .award-content { grid-template-areas: "story art" "quote quote"; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); grid-template-rows: minmax(0, 1fr) auto; }
+.layout-warm .judge-note { justify-self: center; width: 78%; border: 0; border-top: 1px solid #f4b37e66; padding: 8px 12px; text-align: center; }
+.layout-warm .judge-note .judge-note__label { justify-content: center; color: #f4b37e; }
+.layout-warm .judge-note p { font: italic 16px/1.7 Georgia, "Noto Serif CJK SC", serif; color: #f1d5bd; }
+
+@media (max-width: 900px) and (min-width: 641px) {
+  .award-heading h2 { font-size: clamp(36px, 5vw, 54px); }
+  .layout-hero .award-heading h2 { font-size: clamp(45px, 6.5vw, 70px); }
+  .award-description { font-size: 14px; }
+  .winner-reveal h3 { font-size: 29px; }
+  .judge-note p { font-size: 12px; }
+}
+
+@media (max-width: 640px) {
+  .layout-special { display: flex; flex-direction: column; align-items: stretch; justify-content: center; padding: 8px 23px 12px; gap: 0; }
+  .layout-special .award-stage__main { height: auto; max-height: 100%; padding: 12px; }
+  .layout-special .award-heading h2 { font-size: clamp(28px, 7vw, 37px); }
+  .layout-special .award-visual { height: clamp(100px, 20svh, 160px); aspect-ratio: auto; transform: none; }
+  .layout-special .judge-note { order: 3; position: relative; inset: auto; width: auto; max-width: none; margin: 8px 0 0; padding: 8px 10px; transform: none; background: transparent; border: 0; border-left: 2px solid var(--accent-soft); text-align: left; }
+  .winner-time-mark span { font-size: clamp(25px, 9vw, 42px); }
+  .award-heading h2 { font-size: clamp(31px, 8vw, 42px); }
+  .layout-hero .award-heading h2 { font-size: clamp(34px, 9vw, 46px); }
+  .award-description { font-size: 12px; }
+  .layout-editorial .award-description, .layout-minimal .award-description { font-size: 13px; }
+  .winner-reveal h3 { font-size: 21px; }
+  .judge-note p { font-size: 10px; }
+  .winner-gallery { padding: 5px; gap: 5px; }
+  .winner-gallery--editorial, .winner-gallery--minimal, .winner-gallery--gallery, .winner-gallery--time { gap: 3px; }
+  .winner-gallery--chaos { padding: 5px 9px 5px 3px; gap: 3px; }
+  .winner-gallery--warm { padding: 5px; gap: 4px; }
+  .winner-gallery--count-2.winner-gallery--chaos img:first-child { grid-row: 1 / 3; }
+  .winner-gallery--gallery img:first-child { transform: translateY(-3px); }
+  .winner-gallery--gallery img:nth-child(2) { transform: translateY(3px); }
+  .winner-gallery--time img:nth-child(2) { transform: translateY(6px); }
+  .winner-gallery--time img:nth-child(3) { transform: translateY(12px); }
+  .award-content { display: flex; flex-direction: column; }
+  .layout-image .award-content { display: flex; flex-direction: column; }
+  .award-visual { order: 1; }
+  .award-story { order: 2; }
+  .judge-note,
+  .judge-note--hero,
+  .judge-note--split,
+  .judge-note--editorial,
+  .judge-note--image,
+  .judge-note--minimal,
+  .judge-note--gallery,
+  .judge-note--chaos,
+  .judge-note--time,
+  .judge-note--reveal,
+  .judge-note--warm { order: 3; position: relative; inset: auto; width: auto; max-width: none; justify-self: stretch; align-self: stretch; margin: 8px 0 0; padding: 8px 10px; transform: none; background: #11150edb; border: 0; border-left: 2px solid var(--accent); text-align: left; }
+  .judge-note--minimal,
+  .judge-note--warm { border-left: 0; border-top: 1px solid #ffffff30; text-align: center; }
+  .judge-note--minimal .judge-note__label,
+  .judge-note--warm .judge-note__label { justify-content: center; }
+  .judge-note--minimal p,
+  .judge-note--warm p { font-size: 13px; }
+  .judge-note--chaos { border-left-color: #ff9a69; }
+  .judge-note--time { border-left-color: #7edbff; }
+}

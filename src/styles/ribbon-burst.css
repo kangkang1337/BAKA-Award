@@ -1,0 +1,66 @@
+.ceremony-progress { position: relative; z-index: 5; }
+.ceremony-stage { z-index: 3; }
+.award-stage { position: relative; z-index: 3; }
+
+.grand-reveal-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  animation: grand-reveal-fade 3.9s ease-out both;
+}
+.grand-reveal-burst__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: grand-reveal-expand 3.9s cubic-bezier(.14, .68, .18, 1) both;
+}
+.grand-reveal-burst__flare {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: grand-reveal-flare 2.4s ease-out both;
+}
+.grand-reveal-burst__ribbon {
+  transform-box: view-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: grand-reveal-ribbon 3.5s cubic-bezier(.15, .65, .2, 1) var(--ribbon-delay) both;
+  will-change: transform, opacity;
+}
+.grand-reveal-burst__cloth { filter: drop-shadow(0 0 7px #a99bce5c); }
+.grand-reveal-burst__ribbon:nth-of-type(3n) .grand-reveal-burst__cloth { filter: drop-shadow(0 0 9px #d793ae5c); }
+.grand-reveal-burst__shine { fill: #fff7dd8c; opacity: .7; }
+
+@keyframes grand-reveal-fade {
+  0%, 8% { opacity: 0; }
+  20% { opacity: .96; }
+  72% { opacity: .72; }
+  100% { opacity: 0; }
+}
+@keyframes grand-reveal-expand {
+  0% { transform: scale(.1) rotate(-3deg); }
+  34% { transform: scale(1.02) rotate(0deg); }
+  100% { transform: scale(1.13) rotate(2deg); }
+}
+@keyframes grand-reveal-flare {
+  0% { opacity: 0; transform: scale(.05); }
+  14% { opacity: 1; }
+  100% { opacity: 0; transform: scale(2.9); }
+}
+@keyframes grand-reveal-ribbon {
+  0% { opacity: 0; transform: translateY(0) scale(.08) rotate(0deg); }
+  17% { opacity: .98; }
+  56% { opacity: .88; transform: translateY(0) scale(1) rotate(var(--ribbon-turn)); }
+  100% { opacity: 0; transform: translateY(-1.4%) scale(1.13) rotate(calc(var(--ribbon-turn) * -1)); }
+}
+
+@media (max-width: 640px) {
+  .grand-reveal-burst__ribbon:nth-of-type(n + 13) { display: none; }
+  .grand-reveal-burst__cloth { filter: drop-shadow(0 0 5px #a99bce60); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grand-reveal-burst { display: none; }
+}
