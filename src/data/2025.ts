@@ -30,7 +30,7 @@ export const year2025: YearData = {
   guest: {
     name: '泉此方',
     displayName: '泉此方 / Konata Izumi',
-    image: '/images/2025/guest/465aa92c08ad3d7b9444b1d24672fd60.jpeg',
+    image: '/images/2025/guest/465aa92c08ad3d7b9444b1d24672fd60.webp',
     theme: '宅系 · 日常 · 偶尔吐槽',
     introduction: '一个宅宅决定，今年也要认真办场典礼。泉此方在旁边偶尔说两句。',
     comments: {},
@@ -47,12 +47,12 @@ export const year2025: YearData = {
 
 嗯，光是跑来跑去都能玩半天了。`,
       {
-        cover: '/images/2025/games/01/3aea34e9b0ce0b684a1919f5e77b2c4c.jpeg',
+        cover: '/images/2025/games/01/3aea34e9b0ce0b684a1919f5e77b2c4c.webp',
         screenshots: [
-          '/images/2025/games/01/7e89a2a0e77a7b8deda40cdfc0c466d7.jpeg',
-          '/images/2025/games/01/fedc82198eec7397848a0e1c23cf202f.jpeg',
+          '/images/2025/games/01/7e89a2a0e77a7b8deda40cdfc0c466d7.webp',
+          '/images/2025/games/01/fedc82198eec7397848a0e1c23cf202f.webp',
         ],
-        guestImage: '/images/2025/guest/f293a0e7c14564a8d88e8f6e04a97284.jpeg',
+        guestImage: '/images/2025/guest/f293a0e7c14564a8d88e8f6e04a97284.webp',
       },
     ),
     award(
@@ -72,12 +72,12 @@ export const year2025: YearData = {
 
 所以这次就不剧透了。`,
   {
-        cover: '/images/2025/games/02/1a674c3c6c5acdd7949488bb406fb56d.jpeg',
+        cover: '/images/2025/games/02/1a674c3c6c5acdd7949488bb406fb56d.webp',
         screenshots: [
-          '/images/2025/games/02/369bed03375ac4c78c2185144cb9a6da.png',
-          '/images/2025/games/02/ca8feb086c187e69ea8341615f965379.jpeg',
+          '/images/2025/games/02/369bed03375ac4c78c2185144cb9a6da.webp',
+          '/images/2025/games/02/ca8feb086c187e69ea8341615f965379.webp',
         ],
-        guestImage: '/images/2025/guest/2db149a00d6a03fbed57560f777d5c8b.jpeg',
+        guestImage: '/images/2025/guest/2db149a00d6a03fbed57560f777d5c8b.webp',
       },
     ),
     award(
@@ -99,13 +99,13 @@ export const year2025: YearData = {
 
 嗯，属于一眼就能认出来的那种。`,
       {
-        cover: '/images/2025/games/03/7736970d395ace2caa7685c6a1ab985e.jpeg',
+        cover: '/images/2025/games/03/7736970d395ace2caa7685c6a1ab985e.webp',
         screenshots: [
-          '/images/2025/games/03/53504de003fea7c6318d99ad42c9fd4d.jpeg',
-          '/images/2025/games/03/f21678a946bf660fdf1a572093499291.jpg',
-          '/images/2025/games/03/f0aa7295a1ab5998f0eafedf62ded9a4.jpg',
+          '/images/2025/games/03/53504de003fea7c6318d99ad42c9fd4d.webp',
+          '/images/2025/games/03/f21678a946bf660fdf1a572093499291.webp',
+          '/images/2025/games/03/f0aa7295a1ab5998f0eafedf62ded9a4.webp',
         ],
-        guestImage: '/images/2025/guest/4b950148835328271b2678006a4e4a83.jpeg',
+        guestImage: '/images/2025/guest/4b950148835328271b2678006a4e4a83.webp',
       },
     ),
     award(
@@ -127,11 +127,11 @@ export const year2025: YearData = {
 
 算了，反正好听就行。`,
       {
-        cover: '/images/2025/games/04/22038aa83ef32991589490123decf5f1.jpeg',
+        cover: '/images/2025/games/04/22038aa83ef32991589490123decf5f1.webp',
         screenshots: [
-          '/images/2025/games/04/c8ca97f913f1a2c7ec47d0d7160da14a.jpeg',
-          '/images/2025/games/04/8a990138a8371270be1db510feeb825a.jpeg',
-          '/images/2025/games/04/572b8b82b31a27b380094a76a86399af.jpeg',
+          '/images/2025/games/04/c8ca97f913f1a2c7ec47d0d7160da14a.webp',
+          '/images/2025/games/04/8a990138a8371270be1db510feeb825a.webp',
+          '/images/2025/games/04/572b8b82b31a27b380094a76a86399af.webp',
         ],
         guestImage: '/images/2025/guest/9b2834d92fe384fb3344adba16848dcc.webp',
       },
@@ -159,13 +159,13 @@ export const year2025: YearData = {
 
 开着走就行了。`,
       {
-        cover: '/images/2025/games/05/0bf0d3e0ef62121f253e0c02850b4099.jpeg',
+        cover: '/images/2025/games/05/0bf0d3e0ef62121f253e0c02850b4099.webp',
         screenshots: [
-          '/images/2025/games/05/b34b782c7f18f93dcb5cfab117543bed.jpeg',
-          '/images/2025/games/05/8e130fe5b37b891f219177abeebade78.png',
-          '/images/2025/games/05/0ccede3aaf434f0ed00932da16001c6f.png',
+          '/images/2025/games/05/b34b782c7f18f93dcb5cfab117543bed.webp',
+          '/images/2025/games/05/8e130fe5b37b891f219177abeebade78.webp',
+          '/images/2025/games/05/0ccede3aaf434f0ed00932da16001c6f.webp',
         ],
-        guestImage: '/images/2025/guest/14c1ae0539a9152aed6ce4a13f9a8089.jpeg',
+        guestImage: '/images/2025/guest/14c1ae0539a9152aed6ce4a13f9a8089.webp',
       },
     ),
     award(
@@ -203,12 +203,12 @@ export const year2025: YearData = {
 
 这游戏真的很会装无辜。`,
       {
-        cover: '/images/2025/games/06/Snipaste_2026-09-27_21-52-09.jpg',
+        cover: '/images/2025/games/06/Snipaste_2026-09-27_21-52-09.webp',
         screenshots: [
-          '/images/2025/games/06/8fde746c777a50c94156e0e792965b0a.jpeg',
-          '/images/2025/games/06/f71e90ac9ba974b4b802637ca7217f87.jpeg',
+          '/images/2025/games/06/8fde746c777a50c94156e0e792965b0a.webp',
+          '/images/2025/games/06/f71e90ac9ba974b4b802637ca7217f87.webp',
         ],
-        guestImage: '/images/2025/guest/94a76fa00659c0d3a3d1223fe56d96e8.jpeg',
+        guestImage: '/images/2025/guest/94a76fa00659c0d3a3d1223fe56d96e8.webp',
       },
     ),
     award(
@@ -238,13 +238,13 @@ export const year2025: YearData = {
 
 大概是宇宙里的五分钟吧。`,
       {
-        cover: '/images/2025/games/07/bab58dce1092dd2e900a1ed03202427b.png',
+        cover: '/images/2025/games/07/bab58dce1092dd2e900a1ed03202427b.webp',
         screenshots: [
-          '/images/2025/games/07/a40bd0c5413165c26d9d00015ba00f7d.png',
-          '/images/2025/games/07/729fd0aba21e16df0bf6c1e09c35056f.jpeg',
-          '/images/2025/games/07/c6489dce580a65c70ec235101d1a24f9.jpeg'
+          '/images/2025/games/07/a40bd0c5413165c26d9d00015ba00f7d.webp',
+          '/images/2025/games/07/729fd0aba21e16df0bf6c1e09c35056f.webp',
+          '/images/2025/games/07/c6489dce580a65c70ec235101d1a24f9.webp'
         ],
-        guestImage: '/images/2025/guest/f1684ad90a338af29a5158b832dbbd1e.jpeg',
+        guestImage: '/images/2025/guest/f1684ad90a338af29a5158b832dbbd1e.webp',
       },
     ),
     award(
@@ -268,12 +268,12 @@ export const year2025: YearData = {
 
 嗯……虽然我好像也没怎么抽过扭蛋就是了。`,
       {
-        cover: '/images/2025/games/08/Snipaste_2026-09-27_21-57-29.jpg',
+        cover: '/images/2025/games/08/Snipaste_2026-09-27_21-57-29.webp',
         screenshots: [
-          '/images/2025/games/08/8d73c9fea422b754de57bbb7b4c76f9d.jpeg',
-          '/images/2025/games/08/7c9a19484e413c18ebf390cd38ed4ad7.jpeg',
+          '/images/2025/games/08/8d73c9fea422b754de57bbb7b4c76f9d.webp',
+          '/images/2025/games/08/7c9a19484e413c18ebf390cd38ed4ad7.webp',
         ],
-        guestImage: '/images/2025/guest/96e170963332a49ed8eb63367baebc66.jpeg',
+        guestImage: '/images/2025/guest/96e170963332a49ed8eb63367baebc66.webp',
       },
     ),
     award(
@@ -305,13 +305,13 @@ export const year2025: YearData = {
 
 反正这个奖也没规定必须讲出什么大道理吧？`,
       {
-        cover: '/images/2025/games/09/2854beb1630abaa6b508b176b582d5a8.png',
+        cover: '/images/2025/games/09/2854beb1630abaa6b508b176b582d5a8.webp',
         screenshots: [
-          '/images/2025/games/09/0190165de33ad1dec010e71d2085da37.png',
-          '/images/2025/games/09/cc1ce91c0539b53e006024bfb5004f82.jpeg',
-          '/images/2025/games/09/ab54ed9cb4ee0d1d76ebf395ad14a0b1.jpeg'
+          '/images/2025/games/09/0190165de33ad1dec010e71d2085da37.webp',
+          '/images/2025/games/09/cc1ce91c0539b53e006024bfb5004f82.webp',
+          '/images/2025/games/09/ab54ed9cb4ee0d1d76ebf395ad14a0b1.webp'
         ],
-        guestImage: '/images/2025/guest/cbb23faf4b414051223639a35f7dc9ca.jpeg',
+        guestImage: '/images/2025/guest/cbb23faf4b414051223639a35f7dc9ca.webp',
       },
     ),
     award(
@@ -339,13 +339,13 @@ export const year2025: YearData = {
 
 就是它了。`,
       {
-        cover: '/images/2025/games/10/3389e01cac0a60d9525d92fe885ac280.jpeg',
+        cover: '/images/2025/games/10/3389e01cac0a60d9525d92fe885ac280.webp',
         screenshots: [
-          '/images/2025/games/10/84d49c39e0680b58bb9ef797bc7c71e8.png',
-          '/images/2025/games/10/27959058a4b4726980245e0cc62e7b50.jpeg',
-          '/images/2025/games/10/6837daf221c832ea7b0eca98aea49a6c.png'
+          '/images/2025/games/10/84d49c39e0680b58bb9ef797bc7c71e8.webp',
+          '/images/2025/games/10/27959058a4b4726980245e0cc62e7b50.webp',
+          '/images/2025/games/10/6837daf221c832ea7b0eca98aea49a6c.webp'
         ],
-        guestImage: '/images/2025/guest/d0b12aa8490b80bf65503cccf52c7326.jpeg',
+        guestImage: '/images/2025/guest/d0b12aa8490b80bf65503cccf52c7326.webp',
       },
     ),
   ],
@@ -380,12 +380,12 @@ export const year2025: YearData = {
 
 我喜欢。`,
     {
-        cover: '/images/2025/games/11/a8c79609cfa1b2171cbfa4f2bc025f6f.jpg',
+        cover: '/images/2025/games/11/a8c79609cfa1b2171cbfa4f2bc025f6f.webp',
         screenshots: [
-          '/images/2025/games/11/thumb.jpg',
-          '/images/2025/games/11/e6e4de16ce45e9c0075a96c3bfcd6a81.jpeg',
+          '/images/2025/games/11/thumb.webp',
+          '/images/2025/games/11/e6e4de16ce45e9c0075a96c3bfcd6a81.webp',
         ],
-        guestImage: '/images/2025/guest/thumb copy.jpeg',
+        guestImage: '/images/2025/guest/thumb copy.webp',
       },
   ),
 }

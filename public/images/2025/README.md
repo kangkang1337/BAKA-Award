@@ -40,6 +40,8 @@ public/images/2025/games/expedition-33/
 
 `expedition-33` 和文件名可以自己取。建议使用英文、数字和连字符，避免空格；支持静态 `.jpg`、`.jpeg`、`.png`、`.webp` 图片。
 
+为了缩短加载等待，**优先使用 WebP**：游戏截图最长边建议不超过 1920 像素，Guest 照片不超过 1200 像素，画质可设为 80–85。普通 JPG/PNG 也能显示，但大文件会让页面和部署包变大。本机现有的 2025 图片已生成对应 WebP 版本供网站加载，原图保留在旁边；这些图片文件都受 `.gitignore` 保护，不会随代码推送到 GitHub。
+
 ### 2. 在年度数据中填入路径
 
 用代码编辑器打开项目里的：
@@ -64,7 +66,7 @@ src/data/2025.ts
 
 只放一张图时，填写 `cover` 即可；多张图时可继续在 `screenshots` 列表中添加路径。每个奖项目前最多展示三张图，页面会按该奖项的版式排图。
 
-**路径写法要照抄这个格式：**磁盘上的 `public/images/2025/games/expedition-33/cover.jpg`，在代码中对应 `/images/2025/games/expedition-33/cover.jpg`。开头要有 `/images`，不要写 `public`、`C:\Users\...` 或反斜杠 `\`。文件名和扩展名必须与实际文件完全一致。
+**路径写法要照抄这个格式：**磁盘上的 `public/images/2025/games/expedition-33/cover.webp`，在代码中对应 `/images/2025/games/expedition-33/cover.webp`。开头要有 `/images`，不要写 `public`、`C:\Users\...` 或反斜杠 `\`。文件名和扩展名必须与实际文件完全一致。
 
 ### 3. 给不同奖项配不同的评委照片（可选）
 
@@ -102,7 +104,7 @@ npm run dev
 打开终端显示的本地地址，进入 2025 典礼。保存 `2025.ts` 后页面通常会自动刷新。若图片没出现，可以把图片路径直接放进浏览器地址栏检查，例如：
 
 ```text
-http://localhost:5173/images/2025/games/expedition-33/cover.jpg
+http://localhost:5173/images/2025/games/expedition-33/cover.webp
 ```
 
 浏览器能单独打开图片，路径就正确；若显示 404，请核对文件是否放在 `public/images/2025/`、文件名与扩展名大小写是否相同，以及代码路径是否以 `/images/2025/` 开头。

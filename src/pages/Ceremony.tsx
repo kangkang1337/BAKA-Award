@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
 import { ArrowLeft, ArrowRight, ArrowUpRight, Home as HomeIcon, SkipBack, SkipForward } from 'lucide-react'
 import type { YearData } from '../types'
 import { Brand } from '../components/Brand'
@@ -15,12 +15,13 @@ export function Ceremony({ data, onHome }: { data: YearData; onHome: () => void 
   const touchStart = useRef<number | null>(null)
   const totalAwards = data.awards.length + (data.specialAward ? 1 : 0)
   const gameOfTheYearAward = data.awards.find(award => award.id === 'goty')
-  const allAwards = [
+  const allAwards = useMemo(() => [
     ...data.awards,
     ...(data.specialAward ? [data.specialAward] : []),
-  ]
+  ], [data.awards, data.specialAward])
   const gameOfTheYear = gameOfTheYearAward?.winner
   const revealGameOfTheYear = scene === 'award' && allAwards[awardIndex]?.id === 'goty'
+  const nextAwardToPreload = scene === 'award' ? allAwards[awardIndex + 1] : scene === 'finale' ? undefined : allAwards[0]
   const step = scene === 'opening' ? 0 : scene === 'guest' ? 1 : scene === 'award' ? awardIndex + 2 : totalAwards + 2
   const beginAwards = useCallback(() => { setAwardIndex(0); setScene('award') }, [])
   const next = useCallback(() => {
@@ -48,6 +49,22 @@ export function Ceremony({ data, onHome }: { data: YearData; onHome: () => void 
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
   }, [next, previous, onHome])
+  useEffect(() => {
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+    if (connection?.saveData || !nextAwardToPreload) return
+    const winner = nextAwardToPreload.winner
+    const imageSources = new Set([
+      winner?.cover,
+      ...(winner?.screenshots ?? []),
+      nextAwardToPreload.guestImage ?? data.guest.image,
+    ].filter((src): src is string => Boolean(src)))
+    for (const src of imageSources) {
+      const image = new Image()
+      image.decoding = 'async'
+      image.fetchPriority = 'low'
+      image.src = src
+    }
+  }, [nextAwardToPreload, data.guest.image])
   const handleTouchStart = (e: TouchEvent) => { touchStart.current = e.touches[0]?.clientX ?? null }
   const handleTouchEnd = (e: TouchEvent) => {
     if (touchStart.current === null) return
