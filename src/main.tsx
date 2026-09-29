@@ -6,6 +6,7 @@ import './styles/award-layouts.css'
 import './styles/theme-2025.css'
 import './styles/theme-2026.css'
 import './styles/ribbon-burst.css'
+import './styles/ceremony-curtain.css'
 import './styles/responsive-ceremony.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

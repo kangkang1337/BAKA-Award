@@ -27,7 +27,7 @@ export const year2026: YearData = {
     name: '伊吹萃香',
     displayName: '伊吹萃香 / Ibuki Suika',
     theme: '星空宴席 · 旅途余晖 · 相遇与同行',
-    introduction: '在无边的世界里相遇，然后一起走一段。这一夜，先坐下来歇一会儿。',
+    introduction: '在无边的世界里相遇，然后一起走一程。这一夜，先坐下来歇一会儿。',
     comments: {},
   },
   awards: [

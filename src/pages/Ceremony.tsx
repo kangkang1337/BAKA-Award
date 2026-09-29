@@ -6,11 +6,13 @@ import { GuestCard } from '../components/GuestCard'
 import { RibbonBurst } from '../components/RibbonBurst'
 import { AwardStage } from '../layouts/AwardStage'
 import { Starfall } from '../components/Starfall'
+import { CeremonyCurtain } from '../components/CeremonyCurtain'
 
 type Scene = 'opening' | 'guest' | 'award' | 'finale'
 
 export function Ceremony({ data, onHome }: { data: YearData; onHome: () => void }) {
   const [scene, setScene] = useState<Scene>('opening')
+  const [curtainClosed, setCurtainClosed] = useState(false)
   const [awardIndex, setAwardIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const touchStart = useRef<number | null>(null)
@@ -74,12 +76,23 @@ export function Ceremony({ data, onHome }: { data: YearData; onHome: () => void 
     touchStart.current = null
   }
   const progress = scene === 'finale' ? 100 : Math.round((step / (totalAwards + 2)) * 100)
+  useEffect(() => {
+    setCurtainClosed(false)
+    if (scene === 'finale' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setCurtainClosed(true)
+    }
+  }, [scene])
+  useEffect(() => {
+    if (scene !== 'finale' || !curtainClosed) return
+    const timer = window.setTimeout(onHome, 3000)
+    return () => window.clearTimeout(timer)
+  }, [scene, curtainClosed, onHome])
   return <main className={`ceremony-page ceremony-page--${data.year}`} style={{ '--bg': data.theme.background, '--fg': data.theme.foreground, '--accent': data.theme.accent, '--accent-soft': data.theme.accentSecondary ?? data.theme.accent, '--muted': data.theme.secondary, '--grid': data.theme.grid, '--type': data.theme.typography } as CSSProperties} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
     <div className="ceremony-grain" aria-hidden="true"/>
     {revealGameOfTheYear && (data.year === 2026 ? <Starfall key="goty-starfall"/> : <RibbonBurst key="goty-ribbon-burst"/>)}
     <header className="ceremony-topbar"><Brand onHome={onHome}/><div className="ceremony-edition"><span>BAKA AWARD</span><i>/</i>{data.year} <span className="edition-state">{scene === 'opening' ? 'OPENING' : scene === 'guest' ? 'GUEST' : scene === 'finale' ? 'FINALE' : `AWARD ${String(awardIndex + 1).padStart(2, '0')}`}</span></div><button className="home-button" onClick={onHome}><HomeIcon size={15}/><span>ARCHIVE</span></button></header>
     <div className="ceremony-progress"><span>{data.year === 2025 ? 'THE FIRST CEREMONY' : 'THE SECOND CEREMONY'}</span><div className="progress-track"><i style={{ width: `${progress}%` }}/></div><span>{String(step).padStart(2, '0')}<i> / {String(totalAwards + 2).padStart(2, '0')}</i></span></div>
-    <section className="ceremony-stage" key={`${scene}-${awardIndex}-${direction}`}>
+    <section className={`ceremony-stage ${scene === 'finale' ? 'ceremony-stage--closing' : ''}`} key={`${scene}-${awardIndex}-${direction}`}>
       {scene === 'opening' && (data.year === 2026
         ? <article className="voyage-cover scene-enter" aria-label="2026 BAKA AWARD 星空宴会开场">
             <div className="voyage-cover__nebula" aria-hidden="true"/><div className="voyage-cover__planet" aria-hidden="true"/><div className="voyage-cover__orbit voyage-cover__orbit--one" aria-hidden="true"/><div className="voyage-cover__orbit voyage-cover__orbit--two" aria-hidden="true"/>
@@ -94,5 +107,12 @@ export function Ceremony({ data, onHome }: { data: YearData; onHome: () => void 
       {scene === 'finale' && <article className={`finale-scene scene-enter ${data.year === 2026 ? 'finale-scene--voyage' : ''}`}><div className="finale-lines" aria-hidden="true"/><div className="eyebrow"><span className="live-dot"/> END OF CEREMONY · {data.year}</div><p>AND THE YEAR'S BIGGEST AWARD GOES TO...</p><h1>BAKA<br/><span>GAME OF<br/>THE YEAR</span></h1><div className="finale-winner">{gameOfTheYear?.name ?? '获奖名单待揭晓'}</div><p className="finale-note">这一年的游戏旅程暂告一段落。<br/>档案留存，下一届再见。</p><button className="finale-home" onClick={onHome}>返回年度档案馆 <ArrowUpRight size={16}/></button></article>}
     </section>
     <nav className="award-nav" aria-label="颁奖典礼导航"><button className="nav-arrow" onClick={previous} aria-label="上一个阶段"><ArrowLeft/></button><div className="nav-middle"><span>{scene === 'award' ? allAwards[awardIndex]?.title : scene === 'opening' ? 'OPENING' : scene === 'guest' ? 'INTRODUCING THE GUEST' : 'THE FINALE'}</span><div className="nav-dots">{Array.from({ length: totalAwards + 3 }, (_, i) => <button key={i} aria-label={`跳转至第 ${i + 1} 阶段`} className={i === step ? 'is-current' : i < step ? 'is-past' : ''} onClick={() => { if (i === 0) setScene('opening'); else if (i === 1) setScene('guest'); else if (i < totalAwards + 2) { setAwardIndex(i - 2); setScene('award') } else setScene('finale') }}/>)}</div></div><button className="nav-arrow nav-arrow--next" onClick={next} aria-label="下一个阶段"><ArrowRight/></button><span className="nav-key-hint"><SkipBack size={12}/> <SkipForward size={12}/> USE ← →</span></nav>
+    {scene === 'opening' && <CeremonyCurtain mode="opening"/>}
+    {scene === 'finale' && <>
+      <CeremonyCurtain mode="closing" onComplete={() => setCurtainClosed(true)}/>
+      {curtainClosed && <button className="finale-return-hitarea" onClick={onHome} aria-label="返回年度档案馆">
+        <span>点击任意位置返回年度档案馆</span>
+      </button>}
+    </>}
   </main>
 }
