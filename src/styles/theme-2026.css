@@ -1,0 +1,392 @@
+/* 2026: a small late-night table beneath a quiet, oversized sky. */
+.ceremony-page--2026 {
+  --paper-line: #eee9e126;
+  --lantern: #e3aa79;
+  --star-ink: #c1bedc;
+  font-family: var(--type), system-ui, sans-serif;
+  background:
+    radial-gradient(ellipse at 72% 88%, #633d3533, transparent 36%),
+    radial-gradient(ellipse at 22% 16%, #454b7726, transparent 38%),
+    var(--bg);
+}
+.ceremony-page--2026:before {
+  background-image:
+    radial-gradient(1px 1px at 15% 21%, #f2eadc80 99%, transparent),
+    radial-gradient(1px 1px at 68% 32%, #c2c1e580 99%, transparent),
+    radial-gradient(1px 1px at 83% 74%, #f2eadc72 99%, transparent),
+    radial-gradient(1px 1px at 43% 64%, #d1c8ef72 99%, transparent),
+    radial-gradient(1px 1px at 91% 11%, #f2eadc70 99%, transparent);
+  background-size: 173px 149px, 217px 193px, 263px 239px, 307px 281px, 349px 317px;
+  mask-image: linear-gradient(#000 8%, #000b 72%, transparent);
+  opacity: .64;
+}
+.ceremony-page--2026:after {
+  background:
+    radial-gradient(ellipse at 75% 34%, #9895c015, transparent 36%),
+    radial-gradient(ellipse at 74% 92%, #d18b6130, transparent 29%),
+    linear-gradient(180deg, transparent 54%, #080c16a8 100%);
+}
+.ceremony-page--2026 .ceremony-grain { opacity: .022; }
+.ceremony-page--2026 .brand-mark,
+.ceremony-page--2026 .live-dot,
+.ceremony-page--2026 .opening-pretitle,
+.ceremony-page--2026 .award-number { color: var(--accent); }
+.ceremony-page--2026 .brand-mark span { color: var(--fg); }
+.ceremony-page--2026 .live-dot { background: var(--accent); box-shadow: 0 0 9px #d19a7840; }
+.ceremony-page--2026 .ceremony-topbar,
+.ceremony-page--2026 .award-nav { border-color: var(--paper-line); }
+.ceremony-page--2026 .ceremony-edition { color: #eee9e1; }
+.ceremony-page--2026 .ceremony-progress,
+.ceremony-page--2026 .award-stage__foot,
+.ceremony-page--2026 .rail-caption { color: #aaa8b3; }
+.ceremony-page--2026 .progress-track { background: #eae6e51c; }
+.ceremony-page--2026 .progress-track i { background: linear-gradient(90deg, #8986ae, var(--accent)); }
+.ceremony-page--2026 .nav-arrow { color: #dfdce2; border-color: #ebe5e329; }
+.ceremony-page--2026 .nav-arrow:hover { color: #10121a; background: var(--accent); border-color: var(--accent); }
+.ceremony-page--2026 .nav-middle>span { color: #aaa8b3; }
+.ceremony-page--2026 .nav-dots button { background: #eae6e533; }
+.ceremony-page--2026 .nav-dots button.is-current,
+.ceremony-page--2026 .nav-dots button.is-past { background: var(--accent); }
+
+/* 2026 cover: open sky, distant world, one little table. */
+.voyage-cover {
+  height: 100%;
+  min-height: min(650px, calc(100svh - 178px));
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 74% 70%, #bd846022, transparent 29%),
+    linear-gradient(165deg, #0b101c 0%, #11182a 51%, #171522 100%);
+}
+.voyage-cover:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: .5;
+  background-image:
+    radial-gradient(1px 1px at 12% 27%, #fff 99%, transparent),
+    radial-gradient(1.2px 1.2px at 58% 13%, #dedcf3 99%, transparent),
+    radial-gradient(1px 1px at 89% 43%, #fff 99%, transparent),
+    radial-gradient(1px 1px at 32% 53%, #d7d5e9 99%, transparent);
+  background-size: 127px 131px, 197px 179px, 239px 223px, 311px 293px;
+  mask-image: linear-gradient(#000, #000 62%, transparent 94%);
+}
+.voyage-cover__nebula {
+  position: absolute;
+  z-index: -1;
+  width: 55vw;
+  height: 28vw;
+  right: 3%;
+  top: 9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #8882a31a, #695c8210 37%, transparent 70%);
+  filter: blur(18px);
+  animation: nebula-breathe 13s ease-in-out infinite alternate;
+}
+.voyage-cover__planet {
+  position: absolute;
+  z-index: -1;
+  width: clamp(72px, 10vw, 144px);
+  aspect-ratio: 1;
+  right: 19%;
+  top: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 31%, #c8c0d350, #77748e32 35%, #22273918 72%);
+  box-shadow: 0 0 45px #aaa0d10d, inset -18px -10px 24px #080c1855;
+  opacity: .6;
+}
+.voyage-cover__orbit {
+  position: absolute;
+  z-index: -1;
+  right: 7%;
+  top: 8%;
+  width: 46%;
+  height: 36%;
+  border: 1px solid #cbc6e012;
+  border-radius: 50%;
+  transform: rotate(-22deg);
+}
+.voyage-cover__orbit--two { right: 2%; top: 16%; width: 55%; height: 29%; transform: rotate(18deg); border-color: #e2ad8914; }
+.voyage-cover__index {
+  position: absolute;
+  top: 6%;
+  left: 7.5%;
+  color: #b9b6c3;
+  font: 8px/1 var(--mono);
+  letter-spacing: .19em;
+}
+.voyage-cover__index span { color: var(--accent); padding: 0 8px; }
+.voyage-cover__copy {
+  position: absolute;
+  z-index: 2;
+  left: 10%;
+  top: 15%;
+  width: 47%;
+  text-shadow: 0 2px 18px #0b101ccc;
+}
+.voyage-cover__kicker {
+  color: #c9c4cf;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 18px;
+  font: 8px/1.4 var(--mono);
+  letter-spacing: .17em;
+}
+.voyage-cover__kicker i { display: inline-block; width: 17px; height: 1px; background: var(--accent); }
+.voyage-cover__copy h1 {
+  color: #f0eae1;
+  font: 500 clamp(104px, 15.4vw, 218px)/.76 Georgia, "Times New Roman", serif;
+  letter-spacing: -.095em;
+  margin: 0 0 21px -.06em;
+}
+.voyage-cover__title {
+  margin: 0;
+  color: #f0eae1;
+  font-size: clamp(17px, 2.2vw, 30px);
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: .08em;
+}
+.voyage-cover__title em { color: #e0ae8d; font-style: normal; }
+.voyage-cover__note {
+  margin: 17px 0 0;
+  color: #bbb8c2;
+  font-size: 11px;
+  line-height: 2;
+  letter-spacing: .05em;
+}
+.voyage-cover__signature {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 21px;
+  color: #b7b2c0;
+  font: 7px/1 var(--mono);
+  letter-spacing: .15em;
+}
+.voyage-cover__signature i { width: 24px; height: 1px; background: #d19a7877; }
+.voyage-table-scene {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  width: 57%;
+  height: 80%;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 65% 84%, #b3795827, transparent 40%);
+}
+.voyage-table-scene__horizon {
+  position: absolute;
+  left: 0;
+  right: -18%;
+  bottom: 18%;
+  height: 38%;
+  opacity: .45;
+  background: linear-gradient(180deg, transparent, #b68a7530 66%, transparent);
+  clip-path: polygon(0 69%, 12% 57%, 23% 65%, 38% 45%, 53% 61%, 66% 39%, 80% 60%, 100% 32%, 100% 100%, 0 100%);
+}
+.voyage-table-scene__planet-small {
+  position: absolute;
+  top: 27%;
+  right: 15%;
+  width: 21px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 33% 27%, #f2d9be, #b7948d 42%, #55536a 100%);
+  box-shadow: 0 0 25px #d1ad9b4a;
+  opacity: .56;
+}
+.voyage-table-scene__table {
+  position: absolute;
+  right: 3%;
+  bottom: 12%;
+  width: 81%;
+  height: 25%;
+  border: 1px solid #dbad8c48;
+  background: linear-gradient(168deg, #6f4b48d9 0%, #342c3be8 44%, #161a29 100%);
+  clip-path: polygon(7% 0, 100% 12%, 93% 47%, 82% 100%, 19% 91%, 0 44%);
+  box-shadow: 0 -8px 45px #d2987330;
+}
+.voyage-table-scene__cloth { position: absolute; left: 8%; right: 8%; top: 23%; height: 1px; background: #ecc49c40; transform: rotate(4deg); }
+.voyage-table-scene__book { position: absolute; left: 20%; top: 31%; width: 18%; height: 26%; background: linear-gradient(140deg, #c9b49a, #857d7d); transform: rotate(-8deg) skewY(5deg); box-shadow: 0 3px 6px #0a0b11; }
+.voyage-table-scene__book:after { content: ""; position: absolute; inset: 4px 3px; border: 1px solid #534e58aa; }
+.voyage-table-scene__ticket { position: absolute; left: 43%; top: 39%; width: 14%; height: 17%; background: #e0cba8; transform: rotate(11deg); opacity: .8; }
+.voyage-table-scene__cup { position: absolute; right: 19%; top: 17%; width: 7%; min-width: 15px; height: 18%; border: 1px solid #e3b58eae; border-radius: 2px 2px 8px 8px; background: linear-gradient(180deg, #d19a7812 52%, #c77e5550 53%); box-shadow: 0 0 14px #e5aa7540; }
+.voyage-table-scene__lantern { position: absolute; right: 37%; top: 13%; width: 4px; height: 4px; border-radius: 50%; background: #f4c99b; box-shadow: 0 0 8px 4px #e8a87077, 0 0 32px 15px #d18b6138; }
+.voyage-table-scene__guest {
+  position: absolute;
+  z-index: 2;
+  left: 42%;
+  bottom: 26%;
+  width: clamp(86px, 13vw, 176px);
+  height: clamp(128px, 20vw, 250px);
+  filter: drop-shadow(0 0 24px #d99b7024);
+  animation: guest-rest 5.8s ease-in-out infinite;
+}
+.voyage-figure__hair { position: absolute; left: 14%; top: 2%; width: 66%; height: 36%; border-radius: 48% 48% 34% 34%; background: radial-gradient(ellipse at 40% 40%, #ac514d, #722f3d 72%); }
+.voyage-figure__hair:before,.voyage-figure__hair:after { content: ""; position: absolute; top: 50%; width: 26%; height: 78%; border-radius: 45%; background: linear-gradient(90deg, #9e4a48, #542c39); }
+.voyage-figure__hair:before { left: -13%; transform: rotate(8deg); }
+.voyage-figure__hair:after { right: -13%; transform: rotate(-10deg); }
+.voyage-figure__horn { position: absolute; z-index: -1; top: 0; width: 14%; height: 15%; background: #e3b17e; clip-path: polygon(40% 100%, 0 0, 100% 40%, 100% 100%); }
+.voyage-figure__horn--left { left: 20%; transform: rotate(-23deg); }
+.voyage-figure__horn--right { right: 18%; transform: scaleX(-1) rotate(-20deg); }
+.voyage-figure__face { position: absolute; left: 27%; top: 12%; width: 39%; height: 23%; border-radius: 42% 42% 48% 48%; background: linear-gradient(120deg, #d6ac96, #aa7e7c); }
+.voyage-figure__face:after { content: ""; position: absolute; left: 35%; top: 46%; width: 4px; height: 2px; border-radius: 50%; background: #633b43; box-shadow: 13px 0 #633b43; opacity: .7; }
+.voyage-figure__body { position: absolute; left: 9%; bottom: 0; width: 76%; height: 69%; border-radius: 48% 48% 0 0; background: linear-gradient(135deg, #553d4a, #302b3c 55%, #191c2a); clip-path: polygon(32% 0, 69% 0, 84% 20%, 100% 100%, 0 100%, 17% 20%); }
+.voyage-figure__body:after { content: ""; position: absolute; top: 16%; left: 44%; width: 11%; height: 63%; border-radius: 50%; background: #d3a06d; opacity: .76; transform: rotate(12deg); }
+.voyage-figure__cup { position: absolute; z-index: 3; right: 0; bottom: 30%; width: 13px; height: 19px; border: 1px solid #ecc49c; border-radius: 2px 2px 6px 6px; background: #ca825866; box-shadow: 0 0 12px #e2a8796b; }
+.voyage-table-scene__caption { position: absolute; right: 5%; bottom: 5%; color: #d1c1b7; font: 6px/1 var(--mono); letter-spacing: .2em; }
+.voyage-cover__margin-note { position: absolute; z-index: 3; right: 4.5%; top: 23%; color: #aaa5b5; font: 7px/2 var(--mono); letter-spacing: .12em; writing-mode: vertical-rl; }
+.voyage-cover__margin-note span { color: #e2b294; }
+.voyage-cover__folio { position: absolute; z-index: 3; left: 7.5%; bottom: 5%; color: #bab5c1; font: 8px/1 var(--mono); letter-spacing: .15em; }
+.voyage-cover__folio i { color: var(--accent); font-style: normal; padding: 0 7px; }
+
+/* The award pages read as small field notes from the journey. */
+.ceremony-page--2026 .award-stage__main {
+  isolation: isolate;
+  padding: clamp(18px, 2.2vw, 31px);
+  border: 1px solid #d9d3e51b;
+  border-left: 2px solid #d19a7875;
+  background: linear-gradient(145deg, #171b2aeb, #111521f2 62%, #11121bcf);
+  box-shadow: 0 18px 60px #03050a30;
+}
+.ceremony-page--2026 .award-stage__main:before {
+  content: "FIELD NOTE  /  2026";
+  position: absolute;
+  z-index: -1;
+  right: 3%;
+  top: 3%;
+  color: #d2c8e208;
+  font: 700 clamp(27px, 5vw, 70px)/1 var(--mono);
+  letter-spacing: .04em;
+  pointer-events: none;
+}
+.ceremony-page--2026 .award-heading { border-color: var(--paper-line); }
+.ceremony-page--2026 .award-number { color: #e2b18d; }
+.ceremony-page--2026 .award-heading h2,
+.ceremony-page--2026 .winner-reveal h3 { color: #f0eae2; }
+.ceremony-page--2026 .award-heading .eyebrow,
+.ceremony-page--2026 .award-stamp,
+.ceremony-page--2026 .winner-reveal>.eyebrow,
+.ceremony-page--2026 .placeholder-index,
+.ceremony-page--2026 .placeholder-label { color: #aaa6b7; }
+.ceremony-page--2026 .award-stamp { border-color: #e6e0e221; }
+.ceremony-page--2026 .award-description { color: #c7c3cd; }
+.ceremony-page--2026 .award-visual { border-color: #c4b7cc2b; box-shadow: 0 14px 32px #03050a45; }
+.ceremony-page--2026 .winner-gallery { background: #171b28; }
+.ceremony-page--2026 .winner-placeholder {
+  color: #aaa7b3;
+  background:
+    radial-gradient(ellipse at 70% 70%, #d19a7824, transparent 31%),
+    radial-gradient(ellipse at 25% 20%, #9494c21c, transparent 37%),
+    linear-gradient(143deg, #1a2130, #171720 76%);
+}
+.ceremony-page--2026 .placeholder-mark { color: #e2ae8c88; }
+.ceremony-page--2026 .winner-name { color: #f0eae2; background: #111521e8; border: 1px solid #e6e0e226; }
+.ceremony-page--2026 .judge-note {
+  border-color: #d19a7866;
+  background: linear-gradient(110deg, #ddbd9d0a, transparent 70%);
+  transform: rotate(-.35deg);
+}
+.ceremony-page--2026 .judge-note__label { color: #dfad8c; }
+.ceremony-page--2026 .judge-note p { color: #d0cbd2; white-space: pre-line; }
+.ceremony-page--2026 .layout-chaos .judge-note { background: #181822d9; }
+.ceremony-page--2026 .layout-time .judge-note { border-color: #a6a2c455; }
+.ceremony-page--2026 .layout-warm .judge-note { border-color: #d19a7855; }
+.ceremony-page--2026 .layout-special .award-stage__main { border-top-color: #d19a78; }
+.ceremony-page--2026 .layout-special .award-stage__main:after { content: "LAST TOAST"; color: #d19a780a; }
+.ceremony-page--2026 .layout-special .judge-note { border-color: #dfad8c77; }
+.ceremony-page--2026 .finale-lines { border: 0; inset: 5% 12%; }
+.ceremony-page--2026 .finale-lines:before,
+.ceremony-page--2026 .finale-lines:after { display: none; }
+.ceremony-page--2026 .finale-scene--voyage:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: min(58vw, 660px);
+  aspect-ratio: 1;
+  right: 7%;
+  top: 50%;
+  border: 1px solid #d7cbe315;
+  border-radius: 50%;
+  box-shadow: inset 0 0 80px #d19a7809, 0 0 100px #8e89b00a;
+  transform: translateY(-50%);
+}
+.ceremony-page--2026 .finale-scene>p:first-of-type { color: #dcaa87; }
+.ceremony-page--2026 .finale-scene h1 span { color: #d7b096; }
+.ceremony-page--2026 .finale-home { color: #171722; background: #d19a78; }
+.ceremony-page--2026 .finale-home:hover { background: #edc8a9; }
+
+/* The 2026 reveal uses slow, scattered starlight instead of ribbons. */
+.starfall { position: fixed; z-index: 6; inset: 0; overflow: hidden; pointer-events: none; }
+.starfall>i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #f1d4b3;
+  box-shadow: 0 0 8px 2px #d2bba77a, 0 0 22px 5px #9f9bbe30;
+  opacity: 0;
+  animation: star-drift 5.8s ease-in-out infinite;
+}
+.starfall__halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(60vmin, 650px);
+  aspect-ratio: 1;
+  border: 1px solid #d8b69723;
+  border-radius: 50%;
+  box-shadow: 0 0 65px #a9a3c215, inset 0 0 45px #d8b69708;
+  transform: translate(-50%, -50%) scale(.7);
+  animation: halo-arrive 2s ease-out both;
+}
+@keyframes nebula-breathe { from { transform: translate3d(-1%, 0, 0) scale(.96); opacity: .6; } to { transform: translate3d(2%, 2%, 0) scale(1.06); opacity: .95; } }
+@keyframes guest-rest { 0%, 100% { transform: translateY(0) rotate(-.5deg); } 50% { transform: translateY(-4px) rotate(.5deg); } }
+@keyframes star-drift { 0%, 100% { opacity: 0; transform: translate3d(0, 7px, 0) scale(.6); } 25%, 65% { opacity: .85; } 50% { opacity: .35; transform: translate3d(8px, -8px, 0) scale(1.2); } }
+@keyframes halo-arrive { to { transform: translate(-50%, -50%) scale(1.08); opacity: 0; } }
+
+.year-card--2026 { border-color: #33303a; }
+.year-card--2026:hover { background: #e3e0d8; }
+.year-card--2026 .year-card__meta strong { color: #39323a; }
+.year-card--2026 .year-card__meta small { color: #827978; }
+.year-card--2026 .year-card__number { color: #554b55; }
+.year-card--2026 .year-card__open { border-color: #c18a6d; color: #9d6a51; }
+.year-card--2026 .year-card__ghost { color: #bc8e7b0d; }
+.year-moon { width: 7px; height: 7px; display: inline-block; border-radius: 50%; background: #bd8d76; box-shadow: 3px -2px 0 #e8e5dd; }
+
+@media (max-width: 900px) and (min-width: 641px) {
+  .voyage-cover { min-height: calc(100svh - 178px); }
+  .voyage-cover__copy { left: 7%; top: 17%; width: 52%; }
+  .voyage-cover__copy h1 { font-size: clamp(100px, 18vw, 158px); }
+  .voyage-cover__title { font-size: clamp(17px, 2.55vw, 24px); }
+  .voyage-cover__table-scene { width: 63%; opacity: .92; }
+  .voyage-cover__margin-note { display: none; }
+}
+@media (max-width: 640px) {
+  .voyage-cover { min-height: calc(100svh - 162px); height: auto; }
+  .voyage-cover__index { top: 5%; left: 24px; font-size: 6px; letter-spacing: .11em; }
+  .voyage-cover__index span { padding: 0 4px; }
+  .voyage-cover__copy { top: 15%; left: 25px; width: calc(100% - 50px); }
+  .voyage-cover__kicker { font-size: 6px; margin-bottom: 15px; }
+  .voyage-cover__copy h1 { font-size: clamp(88px, 27vw, 138px); margin-bottom: 14px; }
+  .voyage-cover__title { font-size: clamp(17px, 5vw, 22px); line-height: 1.55; }
+  .voyage-cover__note { margin-top: 10px; font-size: 9px; line-height: 1.8; }
+  .voyage-cover__signature { margin-top: 12px; font-size: 5px; gap: 6px; }
+  .voyage-cover__signature i { width: 14px; }
+  .voyage-cover__planet { width: 58px; right: 12%; top: 23%; }
+  .voyage-cover__orbit { right: -11%; top: 15%; width: 92%; height: 33%; }
+  .voyage-cover__orbit--two { right: -13%; top: 22%; width: 104%; height: 28%; }
+  .voyage-cover__table-scene { width: 100%; height: 48%; bottom: 0; opacity: .9; }
+  .voyage-table-scene__guest { width: 100px; height: 150px; left: 47%; bottom: 26%; }
+  .voyage-table-scene__table { width: 90%; right: 2%; bottom: 10%; }
+  .voyage-cover__margin-note { display: none; }
+  .voyage-cover__folio { left: 25px; bottom: 4%; font-size: 6px; }
+  .ceremony-page--2026 .award-stage__main { padding: 12px; border-left-width: 1px; }
+  .ceremony-page--2026 .judge-note { transform: none; }
+  .ceremony-page--2026 .finale-scene--voyage:before { width: 90vw; right: -35%; top: 32%; }
+}

@@ -36,7 +36,7 @@ export function AwardStage({ award, guest, year, awardCount, active }: { award: 
       <div className="award-content">
         <div className="award-story"><p className="award-description">{award.description}</p><div className="winner-reveal"><span className="eyebrow">{award.winner ? 'THE WINNER' : 'THE ENVELOPE IS STILL SEALED'}</span><h3>{award.winner?.name ?? '获奖名单待揭晓'}</h3>{!award.winner && <p className="muted">数据确认后，这里将揭晓本届获奖作品。</p>}</div></div>
         <WinnerArt award={award} className="award-visual"/>
-        <div className={`judge-note judge-note--${award.layout}`}><span className="judge-note__label">{guestImage && <img className="judge-note__portrait image-fade" src={guestImage} alt="" aria-hidden="true" loading="eager" decoding="async" onLoad={event => event.currentTarget.classList.add('is-loaded')}/>}<Sparkles size={13}/> GUEST NOTE</span><p>{award.guestComment || guest.comments[award.id] || '本奖项的 Guest 短评将在角色与年度内容确认后加入。'}</p></div>
+        <div className={`judge-note judge-note--${award.layout}`}><span className="judge-note__label">{guestImage && <img className="judge-note__portrait image-fade" src={guestImage} alt="" aria-hidden="true" loading="eager" decoding="async" onLoad={event => event.currentTarget.classList.add('is-loaded')}/>}<Sparkles size={13}/> GUEST NOTE</span><p>{award.guestComment || guest.comments[award.id] || '嘉宾短评待补入典礼档案。'}</p></div>
       </div>
       <footer className="award-stage__foot"><span>PERSONAL PICKS · {year}</span><span>{award.number} — {awardCount} <ArrowDown size={14}/></span></footer>
     </div>

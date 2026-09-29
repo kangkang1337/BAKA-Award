@@ -181,6 +181,8 @@ sudo chown -R www-data:www-data /var/www/baka-award
 
 图片操作的完整步骤、Windows 文件夹位置、路径示例和故障检查见 [2025 图片添加说明](public/images/2025/README.md)。
 
+2026 年度数据在 `src/data/2026.ts`；本届图片位置与嘉宾插画替换方法见 [2026 图片添加说明](public/images/2026/README.md)。年度主视觉目前由代码绘制星空和宴席，萃香以剪影呈现。
+
 图片文件放在 `public/images/2025/games/` 下；比如：
 
 ```text
@@ -230,9 +232,9 @@ guest: {
 
 ## 奖项与版式
 
-奖项定义集中在 `src/data/2025.ts`，共用组件在 `src/layouts/AwardStage.tsx`。每个奖项的数据包含 ID、编号、标题、中英文副标题、说明、版式、获奖游戏和可选短评。不要把年度内容写进组件。
+各届奖项分别记录在 `src/data/2025.ts` 和 `src/data/2026.ts`，年度配色和视觉效果分别在 `src/themes/2025.ts`、`src/themes/2026.ts` 中配置；共用奖项组件在 `src/layouts/AwardStage.tsx`。每个奖项的数据包含 ID、编号、标题、中英文副标题、说明、版式、获奖游戏和可选短评。不要把年度内容写进组件。
 
-目前 10 个固定奖项各有版式，`special` 专用于正式颁奖后的 After Show 特别奖：
+2025 有 10 个固定奖项；2026 按年度内容准备了 15 个编号奖项和 1 个嘉宾特别奖。版式可在不同年度重复使用，由年度主题样式区分观感。`special` 专用于典礼末尾的特别奖：
 
 | 版式 | 视觉方向 |
 | --- | --- |
