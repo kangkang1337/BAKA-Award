@@ -119,8 +119,12 @@
 .mobile-ex-yui-room__sunlight { position: absolute; inset: 0 0 0 36%; background: linear-gradient(123deg,#f5e6bd44,transparent 54%); }
 .mobile-ex-yui-room__sofa { position: absolute; z-index: 1; right: 5%; bottom: 8%; width: 76%; height: 36%; border-radius: 35px 35px 13px 13px; background: #adbcb9; box-shadow: inset 0 -15px #91a3a0, 0 10px 17px #434b4920; }
 .mobile-ex-yui-room__sofa i { position: absolute; top: 15%; left: 6%; width: 24%; height: 69%; border-radius: 18px; background: #d4a9a0; }.mobile-ex-yui-room__sofa i:nth-child(2) { left: auto; right: 6%; background: #dfd0aa; }.mobile-ex-yui-room__sofa span { position: absolute; bottom: 0; left: 43%; width: 16%; height: 65%; border-radius: 11px 11px 3px 3px; background: #c4b7c3; }
-.mobile-ex-yui-room__person { position: absolute; z-index: 3; right: 28%; bottom: 17%; width: 32%; height: 66%; display: grid; place-items: center; }
-.mobile-ex-yui-room__person img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; }
+.mobile-ex-yui-room__person { position: absolute; z-index: 3; right: 28%; bottom: 17%; width: 32%; height: 66%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; }
+.mobile-ex-yui-room__person img { width: 100%; min-height: 0; flex: 1 1 0; object-fit: contain; object-position: bottom; }
+.mobile-ex-yui-room__photo-controls { position: relative; z-index: 1; display: flex; flex: 0 0 23px; align-items: center; justify-content: center; gap: 3px; width: max-content; max-width: 100%; padding: 1px 4px; border: 1px solid #59636220; border-radius: 999px; color: #647174; background: #fffdf0e8; box-shadow: 0 2px 5px #343b3d14; }
+.mobile-ex-yui-room__photo-controls button { display: grid; width: 20px; height: 20px; flex: 0 0 20px; place-items: center; padding: 0; border: 0; border-radius: 50%; color: inherit; background: transparent; cursor: pointer; }
+.mobile-ex-yui-room__photo-controls button:hover { background: #dce5df; }
+.mobile-ex-yui-room__photo-controls span { white-space: nowrap; font: 5px ui-monospace, Consolas, monospace; letter-spacing: .04em; }
 .mobile-ex-yui-room__portrait-placeholder { width: 90%; height: 92%; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px dashed #878c8b90; border-radius: 48% 48% 13% 13%; color: #707b7c; background: #f6f1e8bd; text-align: center; }
 .mobile-ex-yui-room__portrait-placeholder::before { width: 55px; height: 55px; margin-bottom: 11px; border: 1px solid #c69d9b; border-radius: 50%; background: #e9d1c8; content: ""; }
 .mobile-ex-yui-room__portrait-placeholder span { font: 15px ui-monospace, Consolas, monospace; letter-spacing: .1em; }.mobile-ex-yui-room__portrait-placeholder small { margin-top: 5px; font: 6px ui-monospace, Consolas, monospace; letter-spacing: .1em; }
@@ -144,6 +148,8 @@
 .mobile-ex-art-slot small { max-width: 230px; color: #92999a; font-size: 7px; line-height: 1.5; }
 .mobile-ex-art-slot--photo { display: grid; grid-template-columns: repeat(auto-fit,minmax(90px,1fr)); align-content: stretch; padding: 0; border: 0; background: transparent; }
 .mobile-ex-art-slot--photo img { display: block; width: 100%; height: 100%; min-height: 145px; object-fit: contain; }
+.mobile-ex-image-thumbnails { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); align-items: stretch; gap: 5px; width: 100%; }
+.mobile-ex-image-thumbnails img { display: block; width: 100%; min-width: 0; height: 39px; padding: 3px; border: 1px solid #fffdf0ad; border-radius: 3px; background: #fffdf066; object-fit: contain; }
 .mobile-ex-note { max-height: 470px; overflow: auto; padding: clamp(17px, 2.3vw, 29px); border: 1px solid #5963621c; border-radius: 3px; background: #fffdf5cc; box-shadow: 0 10px 28px #5b51450b; scrollbar-color: #c3c7c2 transparent; scrollbar-width: thin; }
 .mobile-ex-note__byline { display: flex; align-items: center; gap: 8px; padding-bottom: 13px; border-bottom: 1px solid #343b3d15; color: #929393; font: 7px ui-monospace, Consolas, monospace; letter-spacing: .13em; }
 .mobile-ex-note__byline svg { margin-left: auto; color: #c08d91; }
@@ -187,11 +193,13 @@
 .mobile-ex-book { position: relative; display: grid; grid-template-columns: 1fr 1fr; width: 86%; max-width: 590px; min-height: 300px; padding: 23px 20px; transform: rotate(-1deg); background: #d3c4a9; box-shadow: 8px 13px 22px #463e3323; }.mobile-ex-book__page { position: relative; display: flex; min-width: 0; flex-direction: column; gap: 10px; padding: 14px; background: #f5eedf; }.mobile-ex-book__page > span { color: #8c8173; font: 6px ui-monospace, Consolas, monospace; letter-spacing: .1em; }.mobile-ex-book__page small { margin-top: auto; color: #a2988b; font: 5px ui-monospace, Consolas, monospace; letter-spacing: .08em; }.mobile-ex-book__photo { flex: 1; min-height: 165px; }.mobile-ex-book__photo .mobile-ex-art-slot { height: 100%; min-height: 165px; }.mobile-ex-book__quote { display: grid; flex: 1; place-items: center; color: #8c7776; font: italic 18px/1.6 Georgia, serif; text-align: center; }.mobile-ex-book__spine { position: absolute; top: 18px; bottom: 18px; left: 50%; width: 14px; transform: translateX(-50%); background: linear-gradient(90deg,#d2c5ad,#b9aa92,#e0d5c0); }.mobile-ex-bookmark { position: absolute; top: 14%; right: 13%; color: #c5928e; transform: rotate(11deg); }
 .mobile-ex-award-art--rooted { display: grid; place-items: center; background: #dce5df; }
 .mobile-ex-home-screen { position: relative; width: min(58%, 285px); min-width: 220px; height: 87%; min-height: 330px; padding: 19px 16px 14px; overflow: hidden; border: 6px solid #525c5e; border-radius: 26px; transform: rotate(-4deg); background: linear-gradient(155deg,#d8e9e1,#e9e6d8 60%,#d8dbe7); box-shadow: 9px 13px 22px #3943422a; }.mobile-ex-home-screen__status { display: flex; justify-content: space-between; color: #6e7b79; font: 6px ui-monospace, Consolas, monospace; }.mobile-ex-home-screen__status span { color: #909997; }.mobile-ex-home-screen__app { width: 82px; margin: 57px auto 24px; text-align: center; }.mobile-ex-home-screen__app .mobile-ex-art-slot { width: 64px; min-height: 64px; margin: auto auto 8px; padding: 3px; border-radius: 15px; }.mobile-ex-home-screen__app .mobile-ex-art-slot > span { font-size: 5px; }.mobile-ex-home-screen__app > span { color: #5f6c6c; font: 6px/1.4 ui-monospace, Consolas, monospace; letter-spacing: .05em; }.mobile-ex-home-screen__apps { display: flex; justify-content: center; gap: 9px; }.mobile-ex-home-screen__apps i { width: 27px; border-radius: 8px; }.mobile-ex-home-screen__dock { position: absolute; right: 10px; bottom: 11px; left: 10px; display: flex; justify-content: space-around; padding: 8px; border-radius: 12px; background: #fffdf0a8; }.mobile-ex-home-screen__dock i { width: 20px; height: 20px; border-radius: 6px; background: #9db7b2; }.mobile-ex-home-screen__dock i:nth-child(2) { background: #ce9d95; }.mobile-ex-home-screen__dock i:nth-child(3) { background: #d6c386; }.mobile-ex-home-screen__dock i:nth-child(4) { background: #aaa5c1; }
+.mobile-ex-home-screen__archive { margin: 0 auto 12px; }
 .mobile-ex-installed { position: absolute; right: 10%; bottom: 17%; transform: rotate(5deg); color: #828e88; font: 7px/1.8 ui-monospace, Consolas, monospace; letter-spacing: .1em; }.mobile-ex-installed b { color: #a2797d; font-size: 9px; font-weight: 500; }
 
 /* 07: a personal EX pick on a phone, no trophy reveal. */
 .mobile-ex-award-art--goty { display: grid; place-items: center; background: #e6e3db; }
 .mobile-ex-launch-phone { position: relative; width: min(51%, 255px); min-width: 200px; height: 88%; min-height: 340px; padding: 9px; transform: rotate(3deg); border: 1px solid #444c4f; border-radius: 27px; background: #4d5659; box-shadow: 11px 15px 25px #39414325; }.mobile-ex-launch-phone__earpiece { position: absolute; z-index: 3; top: 14px; left: 50%; width: 43px; height: 4px; transform: translateX(-50%); border-radius: 4px; background: #343b3d; }.mobile-ex-launch-phone__screen { position: relative; display: flex; height: 100%; flex-direction: column; justify-content: space-between; overflow: hidden; padding: 42px 12px 18px; border-radius: 20px; background: linear-gradient(165deg,#dbe3df,#e9d9d0 58%,#d6dce2); }.mobile-ex-launch-phone__image { flex: 1; min-height: 200px; margin-bottom: 13px; }.mobile-ex-launch-phone__image .mobile-ex-art-slot { height: 100%; min-height: 200px; }.mobile-ex-launch-phone__brand { color: #768183; font: 6px/1.5 ui-monospace, Consolas, monospace; letter-spacing: .17em; }.mobile-ex-launch-phone__brand b { color: #b18382; font-size: 8px; font-weight: 500; }.mobile-ex-launch-phone__start { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 8px; border-top: 1px solid #59636222; color: #738083; font: 6px ui-monospace, Consolas, monospace; letter-spacing: .11em; }.mobile-ex-ex-seal { position: absolute; right: 15%; bottom: 14%; display: flex; width: 77px; height: 77px; flex-direction: column; justify-content: center; align-items: center; transform: rotate(-9deg); border: 1px solid #b18d83; border-radius: 50%; color: #a77d7c; background: #f4e7d5; box-shadow: 0 4px 9px #49443b15; }.mobile-ex-ex-seal span { font: 6px ui-monospace, Consolas, monospace; letter-spacing: .12em; }.mobile-ex-ex-seal b { margin-top: 4px; font: 22px/1 ui-monospace, Consolas, monospace; }
+.mobile-ex-launch-phone__thumbnails { grid-template-columns: repeat(4,minmax(0,1fr)); margin: 0 0 5px; }
 
 /* Screen lock / gentle return. */
 .mobile-ex-finale { min-height: 585px; display: grid; grid-template-columns: minmax(270px, .9fr) minmax(280px, .65fr); justify-content: center; align-items: center; gap: clamp(38px, 9vw, 135px); padding: 27px 13%; }
@@ -236,7 +244,7 @@
   .mobile-ex-opening__foot { max-width: none; margin-top: 17px; padding-top: 8px; font-size: 6px; }.mobile-ex-opening__foot span:last-child { max-width: 120px; }
   .mobile-ex-desk { min-height: 335px; height: 42vh; }.mobile-ex-desk__phone { top: 6%; left: 30%; width: 47%; height: 88%; padding: 7px; border-radius: 21px; }.mobile-ex-desk__speaker { top: 9px; width: 40px; height: 4px; }.mobile-ex-desk__screen { padding: 23px 8px 8px; border-radius: 15px; }.mobile-ex-desk__welcome { margin: 23px 0 12px; font-size: 6px; }.mobile-ex-desk__welcome b { font-size: 7px; }.mobile-ex-desk__apps { gap: 6px; }.mobile-ex-desk__apps i { width: 26px; border-radius: 7px; }.mobile-ex-desk__apps svg { width: 13px; }.mobile-ex-desk__notification { gap: 4px; margin-top: 14px; padding: 5px; }.mobile-ex-desk__app-dot { width: 19px; height: 19px; flex-basis: 19px; font-size: 6px; }.mobile-ex-desk__notification b { font-size: 5px; }.mobile-ex-desk__notification small { font-size: 5px; }.mobile-ex-desk__notification > svg { width: 10px; }.mobile-ex-desk__memo { top: 5%; left: 4%; width: 90px; padding: 7px; }.mobile-ex-desk__memo strong { font-size: 16px; }.mobile-ex-desk__memo span,.mobile-ex-desk__memo small { font-size: 5px; }.mobile-ex-desk__drink { right: 5%; top: 10%; width: 32px; height: 63px; font-size: 5px; }.mobile-ex-desk__drink i { width: 34px; }.mobile-ex-desk__earbuds { right: 4%; bottom: 18%; width: 45px; height: 45px; }.mobile-ex-desk__earbuds svg { width: 28px; }.mobile-ex-desk__snack { right: 3%; bottom: 5%; width: 60px; height: 42px; font-size: 5px; }.mobile-ex-desk__snack i { font-size: 15px; }.mobile-ex-desk__sticker--one { right: 24%; bottom: 6%; width: 43px; height: 43px; font-size: 6px; }.mobile-ex-desk__sticker--two { left: 5%; bottom: 13%; width: 27px; height: 27px; }.mobile-ex-desk__cable { right: 5%; bottom: 21%; width: 95px; }.mobile-ex-desk__caption { font-size: 5px; }
   .mobile-ex-guest-scene { min-height: 670px; display: flex; flex-direction: column; align-items: stretch; gap: 22px; padding: 28px 3px 18px; }.mobile-ex-guest-scene__copy > p { margin: 20px 0 7px; font-size: 9px; }.mobile-ex-guest-scene h1 { font-size: 46px; }.mobile-ex-guest-scene h1 small { margin-top: 6px; font-size: 7px; }.mobile-ex-guest-scene blockquote { max-width: none; margin-top: 15px; font-size: 15px; }.mobile-ex-guest-note { margin-top: 18px; font-size: 6px; }.mobile-ex-guest-note i { font-size: 9px; }
-  .mobile-ex-yui-room { width: 100%; height: 37vh; min-height: 275px; max-height: 340px; }.mobile-ex-yui-room__window { height: 38%; }.mobile-ex-yui-room__person { right: 29%; bottom: 16%; width: 35%; height: 67%; }.mobile-ex-yui-room__portrait-placeholder::before { width: 43px; height: 43px; }
+  .mobile-ex-yui-room { width: 100%; height: 37vh; min-height: 275px; max-height: 340px; }.mobile-ex-yui-room__window { height: 38%; }.mobile-ex-yui-room__person { right: 29%; bottom: 16%; width: 35%; height: 67%; }.mobile-ex-yui-room__portrait-placeholder::before { width: 43px; height: 43px; }.mobile-ex-yui-room__photo-controls { flex-basis: 22px; gap: 1px; padding: 0 3px; }.mobile-ex-yui-room__photo-controls button { width: 20px; height: 20px; flex-basis: 20px; }
   .mobile-ex-award-scene { padding: 18px 1px 10px; }.mobile-ex-award-heading { grid-template-columns: 38px minmax(0,1fr); gap: 10px; padding-bottom: 11px; }.mobile-ex-award-heading__number { padding-top: 4px; font-size: 9px; }.mobile-ex-award-heading__number i { display: block; margin-top: 4px; font-size: 6px; }.mobile-ex-award-heading .mobile-ex-kicker { font-size: 6px; }.mobile-ex-award-heading h1 { margin-top: 4px; font-size: clamp(23px,7vw,34px); }.mobile-ex-award-heading p { margin-top: 5px; font-size: 10px; }.mobile-ex-award-heading__kind { display: none; }
   .mobile-ex-award-body { display: flex; flex-direction: column; align-items: stretch; gap: 13px; padding: 14px 0 10px; }.mobile-ex-award-body__art { order: 0; }.mobile-ex-award-art { min-height: 260px; height: 31vh; max-height: 340px; }.mobile-ex-note { order: 1; max-height: min(38vh, 320px); padding: 12px 14px; }.mobile-ex-note__byline { padding-bottom: 8px; font-size: 6px; }.mobile-ex-note__yui { width: 21px; height: 21px; font-size: 10px; }.mobile-ex-note > p { margin-top: 11px; font-size: 11px; line-height: 1.8; }.mobile-ex-note__end { margin-top: 11px; padding-top: 7px; font-size: 9px; }
   .mobile-ex-life-map { gap: 4px; padding: 3px 0 0; font-size: 5px; }.mobile-ex-life-map > span { max-width: 67px; margin-right: 2px; line-height: 1.3; }.mobile-ex-life-map button { width: 21px; height: 21px; font-size: 6px; }
@@ -245,10 +253,104 @@
   .mobile-ex-landscape-phone { width: 85%; padding: 6px; }.mobile-ex-landscape-phone__screen { padding: 8px; }.mobile-ex-landscape-phone__game,.mobile-ex-landscape-phone__game .mobile-ex-art-slot { min-height: 106px; }.mobile-ex-landscape-phone__top { font-size: 5px; }.mobile-ex-cards { gap: 5px; margin-top: 6px; }.mobile-ex-cards i { width: 20px; height: 26px; font-size: 8px; }.mobile-ex-cup { right: 3%; bottom: 11%; width: 37px; height: 37px; border-width: 3px; }.mobile-ex-cup svg { width: 18px; }.mobile-ex-sticker--idle { top: 8%; right: 8%; width: 42px; height: 42px; font-size: 6px; }
   .mobile-ex-gift-sheet { width: 76%; padding: 15px; }.mobile-ex-free-stamp { top: -10px; left: -10px; width: 50px; height: 50px; font-size: 11px; }.mobile-ex-free-stamp small { font-size: 5px; }.mobile-ex-gift-sheet__pack { min-height: 150px; }.mobile-ex-gift-sheet__pack .mobile-ex-art-slot { min-height: 125px; }.mobile-ex-gift-sheet__tickets { gap: 3px; margin-top: 8px; }.mobile-ex-gift-sheet__tickets i { padding: 5px; font-size: 5px; }.mobile-ex-sticker--gift { right: 7%; bottom: 12%; width: 32px; height: 32px; font-size: 18px; }.mobile-ex-gift-confetti { right: 8%; top: 10%; font-size: 15px; }
   .mobile-ex-book { width: 94%; min-height: 210px; padding: 12px 11px; }.mobile-ex-book__page { gap: 6px; padding: 8px; }.mobile-ex-book__page > span { font-size: 5px; }.mobile-ex-book__page small { font-size: 4px; }.mobile-ex-book__photo,.mobile-ex-book__photo .mobile-ex-art-slot { min-height: 112px; }.mobile-ex-book__quote { font-size: 13px; }.mobile-ex-book__spine { top: 11px; bottom: 11px; width: 9px; }.mobile-ex-bookmark { top: 9%; right: 5%; width: 25px; }
-  .mobile-ex-home-screen { width: 47%; min-width: 175px; min-height: 240px; height: 89%; padding: 12px 10px 9px; border-width: 4px; border-radius: 19px; }.mobile-ex-home-screen__app { margin: 34px auto 15px; }.mobile-ex-home-screen__app .mobile-ex-art-slot { width: 52px; min-height: 52px; }.mobile-ex-home-screen__apps { gap: 6px; }.mobile-ex-home-screen__apps i { width: 22px; }.mobile-ex-home-screen__apps svg { width: 11px; }.mobile-ex-home-screen__dock i { width: 16px; height: 16px; }.mobile-ex-home-screen__dock { padding: 6px; }.mobile-ex-installed { right: 5%; bottom: 10%; font-size: 6px; }.mobile-ex-installed b { font-size: 7px; }
-  .mobile-ex-launch-phone { width: 44%; min-width: 162px; min-height: 245px; height: 89%; padding: 6px; border-radius: 20px; }.mobile-ex-launch-phone__screen { padding: 32px 8px 12px; border-radius: 15px; }.mobile-ex-launch-phone__earpiece { top: 10px; width: 33px; }.mobile-ex-launch-phone__image,.mobile-ex-launch-phone__image .mobile-ex-art-slot { min-height: 145px; }.mobile-ex-launch-phone__brand { font-size: 5px; }.mobile-ex-launch-phone__start { margin-top: 9px; padding-top: 6px; font-size: 5px; }.mobile-ex-ex-seal { right: 7%; bottom: 10%; width: 58px; height: 58px; }.mobile-ex-ex-seal span { font-size: 5px; }.mobile-ex-ex-seal b { font-size: 16px; }
+  .mobile-ex-home-screen { width: 47%; min-width: 175px; min-height: 240px; height: 89%; padding: 12px 10px 9px; border-width: 4px; border-radius: 19px; }.mobile-ex-home-screen__app { margin: 34px auto 15px; }.mobile-ex-home-screen__app .mobile-ex-art-slot { width: 52px; min-height: 52px; }.mobile-ex-home-screen__archive { margin-bottom: 8px; gap: 3px; }.mobile-ex-home-screen__archive img { height: 31px; padding: 2px; }.mobile-ex-home-screen__apps { gap: 6px; }.mobile-ex-home-screen__apps i { width: 22px; }.mobile-ex-home-screen__apps svg { width: 11px; }.mobile-ex-home-screen__dock i { width: 16px; height: 16px; }.mobile-ex-home-screen__dock { padding: 6px; }.mobile-ex-installed { right: 5%; bottom: 10%; font-size: 6px; }.mobile-ex-installed b { font-size: 7px; }
+  .mobile-ex-launch-phone { width: 44%; min-width: 162px; min-height: 245px; height: 89%; padding: 6px; border-radius: 20px; }.mobile-ex-launch-phone__screen { padding: 32px 8px 12px; border-radius: 15px; }.mobile-ex-launch-phone__earpiece { top: 10px; width: 33px; }.mobile-ex-launch-phone__image,.mobile-ex-launch-phone__image .mobile-ex-art-slot { min-height: 105px; }.mobile-ex-launch-phone__image { margin-bottom: 6px; }.mobile-ex-launch-phone__image img { min-height: 105px; }.mobile-ex-launch-phone__thumbnails { gap: 2px; margin-bottom: 3px; }.mobile-ex-launch-phone__thumbnails img { height: 25px; padding: 1px; }.mobile-ex-launch-phone__brand { font-size: 5px; }.mobile-ex-launch-phone__start { margin-top: 9px; padding-top: 6px; font-size: 5px; }.mobile-ex-ex-seal { right: 7%; bottom: 10%; width: 58px; height: 58px; }.mobile-ex-ex-seal span { font-size: 5px; }.mobile-ex-ex-seal b { font-size: 16px; }
   .mobile-ex-finale { min-height: 670px; display: flex; flex-direction: column; justify-content: center; gap: 20px; padding: 18px 2px 24px; }.mobile-ex-finale__paper { width: min(75vw, 285px); min-height: 420px; padding: 25px 23px 16px; border-width: 5px; border-radius: 28px; }.mobile-ex-finale__lock span:first-child { font-size: 28px; }.mobile-ex-finale__icons { max-width: 180px; gap: 5px; margin-top: 23px; }.mobile-ex-finale__app { width: 30px; height: 30px; border-radius: 8px; font-size: 12px; }.mobile-ex-finale__small { margin-top: 20px; font-size: 5px; }.mobile-ex-finale__paper h1 { font-size: 35px; }.mobile-ex-finale__paper > p:not(.mobile-ex-finale__small) { font-size: 9px; }.mobile-ex-finale__copy { text-align: center; }.mobile-ex-finale__copy p { margin: 10px 0; font-size: 11px; }.mobile-ex-finale__copy .mobile-ex-kicker { font-size: 6px; }.mobile-ex-finale__copy button { padding: 9px 12px; font-size: 9px; }
   .mobile-ex-controls { min-height: 62px; gap: 8px; }.mobile-ex-controls__arrow { width: 31px; height: 31px; flex-basis: 31px; }.mobile-ex-controls__center { flex-direction: column; gap: 6px; }.mobile-ex-controls__center > span { max-width: 160px; font-size: 6px; }.mobile-ex-controls__center > div { gap: 3px; }.mobile-ex-controls__center > div button { width: 12px; height: 4px; }.mobile-ex-controls__center > div button.is-active { width: 19px; }.mobile-ex-controls__keys { display: none; }
+}
+
+/* Award photos stay large inside their editorial frames, with the review and navigation kept clear. */
+.mobile-ex-chat-paper { width: 88%; max-width: 540px; }
+.mobile-ex-chat-paper__wallpaper { aspect-ratio: 1.55; min-height: 0; }
+.mobile-ex-chat-paper__wallpaper .mobile-ex-art-slot { min-height: 0; }
+.mobile-ex-polaroid { width: min(72%, 340px); min-width: 0; }
+.mobile-ex-polaroid__photo { min-height: 280px; }
+.mobile-ex-polaroid__photo .mobile-ex-art-slot { min-height: 280px; }
+.mobile-ex-free-stamp { top: -28px; left: -28px; }
+.mobile-ex-sticker--star { top: 4%; right: 2%; }
+.mobile-ex-sticker--spark { top: 8%; left: 2%; }
+.mobile-ex-polaroid + .mobile-ex-sticker + .mobile-ex-sticker + .mobile-ex-handnote { right: 2%; bottom: 3%; }
+.mobile-ex-landscape-phone { width: 88%; max-width: 620px; }
+.mobile-ex-landscape-phone__game { min-height: 0; }
+.mobile-ex-landscape-phone__game .mobile-ex-art-slot { min-height: 0; }
+.mobile-ex-sticker--idle { top: 1%; right: 1%; }
+.mobile-ex-cup { right: 1%; bottom: 1%; }
+.mobile-ex-gift-sheet { width: 84%; max-width: 560px; }
+.mobile-ex-gift-sheet__pack { min-height: 260px; }
+.mobile-ex-gift-sheet__pack .mobile-ex-art-slot { width: 88%; min-height: 230px; }
+.mobile-ex-sticker--gift,.mobile-ex-gift-confetti { display: none; }
+.mobile-ex-home-screen { width: min(68%, 340px); min-width: 250px; }
+.mobile-ex-home-screen__app { width: 86%; margin: 38px auto 18px; }
+.mobile-ex-home-screen__app .mobile-ex-home-screen__icon { width: 100%; height: 205px; min-height: 205px; margin: auto auto 10px; }
+.mobile-ex-home-screen__icon img { min-height: 195px; }
+.mobile-ex-installed { right: 1%; }
+.mobile-ex-note__yui { display: block; width: 58px; height: 66px; flex: 0 0 58px; padding: 2px; border: 1px solid #cbb7a1; border-radius: 4px; background: #f6f0e4; object-fit: contain; object-position: center bottom; box-shadow: 1px 3px 7px #343b3d16; }
+.mobile-ex-note__byline > span { display: flex; flex-direction: column; gap: 5px; }
+.mobile-ex-note__byline small { color: #9a8685; font: 7px/1.3 "Microsoft YaHei", sans-serif; letter-spacing: .04em; }
+.mobile-ex-goty-composition { display: grid; width: 100%; height: 100%; min-height: 360px; grid-template-columns: minmax(76px,1fr) minmax(190px,270px) minmax(76px,1fr); align-items: center; justify-items: center; gap: clamp(8px,1.8vw,18px); padding: 20px 3.5%; }
+.mobile-ex-goty-support { width: 100%; max-width: 165px; margin: 0; padding: 7px; border: 1px solid #bdb6a7; background: #fffaf0; box-shadow: 4px 7px 13px #343b3d20; }
+.mobile-ex-goty-support--left { transform: rotate(-4deg); }
+.mobile-ex-goty-support--right { transform: rotate(4deg); }
+.mobile-ex-goty-support img { display: block; width: 100%; height: clamp(100px,19vh,148px); background: #e9e5dc; object-fit: contain; }
+.mobile-ex-goty-support figcaption { margin-top: 6px; color: #838987; font: 6px/1.4 ui-monospace, Consolas, monospace; letter-spacing: .1em; text-align: center; }
+.mobile-ex-goty-composition .mobile-ex-launch-phone { width: 100%; min-width: 0; max-width: 270px; }
+.mobile-ex-ex-seal { top: 4%; right: 4%; bottom: auto; width: 58px; height: 58px; }
+
+@media (max-width: 900px) {
+  .mobile-ex-award-art--goty { height: auto; min-height: 440px; max-height: none; }
+  .mobile-ex-goty-composition { min-height: 440px; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-rows: auto auto; gap: 10px 12px; padding: 15px 7% 12px; }
+  .mobile-ex-goty-composition .mobile-ex-launch-phone { grid-column: 1 / -1; grid-row: 1; width: min(78%,300px); min-height: 290px; height: auto; }
+  .mobile-ex-goty-composition .mobile-ex-launch-phone__screen { height: auto; min-height: 275px; padding: 34px 10px 10px; }
+  .mobile-ex-goty-composition .mobile-ex-launch-phone__image,.mobile-ex-goty-composition .mobile-ex-launch-phone__image .mobile-ex-art-slot { min-height: 180px; margin-bottom: 8px; }
+  .mobile-ex-goty-composition .mobile-ex-launch-phone__image img { min-height: 180px; }
+  .mobile-ex-goty-support { max-width: 180px; }
+  .mobile-ex-goty-support img { height: 76px; }
+  .mobile-ex-ex-seal { display: none; }
+}
+
+@media (max-width: 680px) {
+  .mobile-ex-award-scene { padding: 10px 1px 6px; }
+  .mobile-ex-award-body { gap: 8px; padding: 8px 0 4px; }
+  .mobile-ex-life-map { padding-top: 0; }
+  .mobile-ex-controls { min-height: 50px; }
+  .mobile-ex-note { max-height: min(38vh,280px); }
+  .mobile-ex-award-art--portrait { height: 330px; min-height: 330px; max-height: 330px; }
+  .mobile-ex-award-scene--portrait .mobile-ex-note { max-height: 210px; }
+  .mobile-ex-chat-paper { width: 91%; min-width: 0; padding: 14px 6% 14px; }
+  .mobile-ex-chat-paper__wallpaper { aspect-ratio: 1.7; }
+  .mobile-ex-chat-paper__wallpaper .mobile-ex-art-slot { min-height: 0; }
+  .mobile-ex-polaroid { width: 65%; min-width: 0; padding: 8px 8px 0; }
+  .mobile-ex-polaroid__photo,.mobile-ex-polaroid__photo .mobile-ex-art-slot { min-height: 180px; }
+  .mobile-ex-polaroid__caption { height: 33px; }
+  .mobile-ex-landscape-phone { width: 91%; padding: 6px; }
+  .mobile-ex-landscape-phone__screen { padding: 8px; }
+  .mobile-ex-landscape-phone__game { min-height: 0; }
+  .mobile-ex-landscape-phone__game .mobile-ex-art-slot { min-height: 0; }
+  .mobile-ex-gift-sheet { width: 80%; padding: 15px; }
+  .mobile-ex-gift-sheet__pack { min-height: 160px; }
+  .mobile-ex-gift-sheet__pack .mobile-ex-art-slot { width: 88%; min-height: 140px; }
+  .mobile-ex-home-screen { width: 70%; min-width: 205px; min-height: 240px; height: 90%; padding: 11px 10px 9px; }
+  .mobile-ex-home-screen__app { width: 88%; margin: 24px auto 10px; }
+  .mobile-ex-home-screen__app .mobile-ex-home-screen__icon { height: 142px; min-height: 142px; }
+  .mobile-ex-home-screen__icon img { min-height: 135px; }
+  .mobile-ex-installed { display: none; }
+  .mobile-ex-free-stamp { top: -26px; left: -26px; }
+  .mobile-ex-note__yui { width: 56px; height: 64px; flex-basis: 56px; }
+  .mobile-ex-note__byline small { font-size: 6px; }
+  .mobile-ex-award-art--goty { min-height: 300px; }
+  .mobile-ex-goty-composition { min-height: 300px; gap: 6px 10px; padding: 8px 5% 4px; }
+  .mobile-ex-goty-composition .mobile-ex-launch-phone { width: min(82%,300px); min-height: 200px; }
+  .mobile-ex-goty-composition .mobile-ex-launch-phone__screen { min-height: 190px; padding: 25px 9px 6px; }
+  .mobile-ex-goty-composition .mobile-ex-launch-phone__image,.mobile-ex-goty-composition .mobile-ex-launch-phone__image .mobile-ex-art-slot { min-height: 115px; margin-bottom: 4px; }
+  .mobile-ex-goty-composition .mobile-ex-launch-phone__image img { min-height: 115px; }
+  .mobile-ex-goty-support { width: 100%; padding: 5px; }
+  .mobile-ex-goty-support img { height: 38px; }
+  .mobile-ex-goty-support figcaption { margin-top: 4px; font-size: 5px; }
+  .mobile-ex-award-scene--mobile-goty .mobile-ex-note { max-height: 220px; }
+  .mobile-ex-book { width: 96%; min-height: 235px; grid-template-columns: minmax(0,2.1fr) minmax(76px,.65fr); padding: 11px 9px; }
+  .mobile-ex-book__page { gap: 5px; padding: 7px; }
+  .mobile-ex-book__page--right > span { font-size: 4px; }
+  .mobile-ex-book__spine { left: 76%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

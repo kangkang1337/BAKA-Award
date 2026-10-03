@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from 'react'
 import {
   ArrowLeft, ArrowRight, Battery, BookOpen, Bookmark, ChevronLeft, ChevronRight,
-  Coffee, Gift, Headphones, Heart, Home, Image as ImageIcon, Music2,
+  Headphones, Heart, Home, Image as ImageIcon, Music2,
   Smartphone, Star, Wifi,
 } from 'lucide-react'
 import { mobileExAwards, mobileExGuest, type MobileExAward } from '../data/2026-mobile-ex'
@@ -15,6 +15,13 @@ function ArtSlot({ label, image, images, className = '' }: { label: string; imag
   return <div className={`mobile-ex-art-slot ${className}`} aria-label={`图片位置：${label}`}>
     <span><ImageIcon size={17}/>{label}</span>
     <small>把图片放进 public/images/2026/ex-mobile/，再填写本奖项数据里的 image 或 images 路径</small>
+  </div>
+}
+
+function ImageThumbnails({ images, label, className = '' }: { images: string[]; label: string; className?: string }) {
+  if (!images.length) return null
+  return <div className={`mobile-ex-image-thumbnails ${className}`} aria-label={label}>
+    {images.map((src, index) => <img key={src} src={src} alt={`${label} ${index + 1}`} loading="lazy" decoding="async"/>)}
   </div>
 }
 
@@ -48,7 +55,18 @@ function Gamepad2Icon() {
   return <span className="mobile-ex-gamepad-mark" aria-hidden="true">✣</span>
 }
 
-function YuiRoom({ image }: { image?: string }) {
+function shuffleAfterFirst(items: string[]) {
+  const [entranceImage, ...remaining] = items
+  for (let index = remaining.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    ;[remaining[index], remaining[swapIndex]] = [remaining[swapIndex]!, remaining[index]!]
+  }
+  return entranceImage ? [entranceImage, ...remaining] : remaining
+}
+
+function YuiRoom({ images }: { images: string[] }) {
+  const [photoIndex, setPhotoIndex] = useState(0)
+  const showPhoto = (step: number) => setPhotoIndex(index => (index + step + images.length) % images.length)
   return <div className="mobile-ex-yui-room" aria-label="平泽唯坐在房间里一起看手机的插画位置">
     <div className="mobile-ex-yui-room__window"><i/><i/><i/><i/></div>
     <div className="mobile-ex-yui-room__sunlight"/>
@@ -56,7 +74,14 @@ function YuiRoom({ image }: { image?: string }) {
     <div className="mobile-ex-yui-room__table"><span/><i/><b/></div>
     <div className="mobile-ex-yui-room__phone"><Smartphone size={23}/></div>
     <div className="mobile-ex-yui-room__person">
-      {image ? <img src={image} alt="平泽唯" loading="lazy" decoding="async"/> : <div className="mobile-ex-yui-room__portrait-placeholder"><span>YUI</span><small>PORTRAIT SLOT</small></div>}
+      {images.length ? <>
+        <img key={images[photoIndex]} src={images[photoIndex]} alt={`平泽唯照片 ${photoIndex + 1}`} loading="lazy" decoding="async"/>
+        <div className="mobile-ex-yui-room__photo-controls">
+          <button onClick={() => showPhoto(-1)} aria-label="上一张平泽唯图片"><ChevronLeft size={13}/></button>
+          <span>YUI / {String(photoIndex + 1).padStart(2, '0')} — {String(images.length).padStart(2, '0')}</span>
+          <button onClick={() => showPhoto(1)} aria-label="下一张平泽唯图片"><ChevronRight size={13}/></button>
+        </div>
+      </> : <div className="mobile-ex-yui-room__portrait-placeholder"><span>YUI</span><small>PORTRAIT SLOT</small></div>}
     </div>
     <span className="mobile-ex-yui-room__label">SUNDAY / ROOM 01</span>
   </div>
@@ -71,24 +96,29 @@ function AwardVisual({ award }: { award: MobileExAward }) {
     <div className="mobile-ex-polaroid"><div className="mobile-ex-polaroid__tape"/>{slot('mobile-ex-polaroid__photo')}<div className="mobile-ex-polaroid__caption"><b>ONE MORE LOOK</b><span>STAR / SAVIOR</span></div></div><span className="mobile-ex-sticker mobile-ex-sticker--star"><Star size={24}/></span><span className="mobile-ex-sticker mobile-ex-sticker--spark">✳</span><span className="mobile-ex-handnote">我本来只是<br/>看一下的</span>
   </div>
   if (award.id === 'idle') return <div className="mobile-ex-award-art mobile-ex-award-art--idle">
-    <div className="mobile-ex-landscape-phone"><div className="mobile-ex-landscape-phone__screen"><div className="mobile-ex-landscape-phone__top">ANCIENT GODS <span>PAUSE / 03:00</span></div>{slot('mobile-ex-landscape-phone__game')}<div className="mobile-ex-cards"><i>Ⅰ</i><i>Ⅱ</i><i>Ⅲ</i><i>+</i></div></div></div><div className="mobile-ex-cup"><Coffee size={25}/></div><span className="mobile-ex-sticker mobile-ex-sticker--idle">JUST<br/>ONE<br/>MORE</span>
+    <div className="mobile-ex-landscape-phone"><div className="mobile-ex-landscape-phone__screen"><div className="mobile-ex-landscape-phone__top">ANCIENT GODS <span>PAUSE / 03:00</span></div>{slot('mobile-ex-landscape-phone__game')}<div className="mobile-ex-cards"><i>Ⅰ</i><i>Ⅱ</i><i>Ⅲ</i><i>+</i></div></div></div>
   </div>
   if (award.id === 'gifts') return <div className="mobile-ex-award-art mobile-ex-award-art--gifts">
-    <div className="mobile-ex-gift-sheet"><span className="mobile-ex-free-stamp">FREE<br/><small>FREE</small></span><div className="mobile-ex-gift-sheet__pack">{slot('mobile-ex-gift-sheet__image')}<Gift size={32}/></div><div className="mobile-ex-gift-sheet__tickets"><i>GACHA TICKET</i><i>ONE MORE</i><i>LUCKY DAY</i></div></div><span className="mobile-ex-sticker mobile-ex-sticker--gift">✦</span><span className="mobile-ex-gift-confetti">✳　✦　✳</span>
+    <div className="mobile-ex-gift-sheet"><span className="mobile-ex-free-stamp">FREE<br/><small>FREE</small></span><div className="mobile-ex-gift-sheet__pack">{slot('mobile-ex-gift-sheet__image')}</div><div className="mobile-ex-gift-sheet__tickets"><i>GACHA TICKET</i><i>ONE MORE</i><i>LUCKY DAY</i></div></div><span className="mobile-ex-sticker mobile-ex-sticker--gift">✦</span><span className="mobile-ex-gift-confetti">✳　✦　✳</span>
   </div>
   if (award.id === 'story-art') return <div className="mobile-ex-award-art mobile-ex-award-art--story">
-    <div className="mobile-ex-book"><div className="mobile-ex-book__page mobile-ex-book__page--left"><span>TIME / ARCHIVE</span><ArtSlot label={award.visualLabel} image={award.images?.[0] ?? award.image} className="mobile-ex-book__photo mobile-ex-book__photo--one"/><small>AN UNEXPECTED CHAPTER</small></div><div className="mobile-ex-book__page mobile-ex-book__page--right"><span>REVERSE / 1999</span>{award.images?.[1] ? <ArtSlot label="SECOND MOMENT" image={award.images[1]} className="mobile-ex-book__photo"/> : <div className="mobile-ex-book__quote">A story<br/>that keeps<br/>turning.</div>}<small>PAGE 19 — 99</small></div><div className="mobile-ex-book__spine"/></div><Bookmark className="mobile-ex-bookmark" size={34}/>
+    <div className="mobile-ex-book"><div className="mobile-ex-book__page mobile-ex-book__page--left"><span>TIME / ARCHIVE</span><ArtSlot label={award.visualLabel} image={award.images?.[0] ?? award.image} className="mobile-ex-book__photo mobile-ex-book__photo--one"/><small>AN UNEXPECTED CHAPTER</small></div><div className="mobile-ex-book__page mobile-ex-book__page--right"><span>REVERSE / 1999</span><div className="mobile-ex-book__quote">A year<br/>in pages.</div><small>PAGE 19 — 99</small></div><div className="mobile-ex-book__spine"/></div><Bookmark className="mobile-ex-bookmark" size={34}/>
   </div>
   if (award.id === 'rooted') return <div className="mobile-ex-award-art mobile-ex-award-art--rooted">
-    <div className="mobile-ex-home-screen"><div className="mobile-ex-home-screen__status">09:41 <span>HOME / PAGE 01</span></div><div className="mobile-ex-home-screen__app">{slot('mobile-ex-home-screen__icon')}<span>TOUHOU<br/>LOSTWORD</span></div><div className="mobile-ex-home-screen__apps"><i><Heart size={14}/></i><i><Music2 size={14}/></i><i><BookOpen size={14}/></i></div><div className="mobile-ex-home-screen__dock"><i/><i/><i/><i/></div></div><span className="mobile-ex-installed">INSTALLED<br/><b>STILL HERE ✓</b></span>
+    <div className="mobile-ex-home-screen"><div className="mobile-ex-home-screen__status">09:41 <span>HOME / PAGE 01</span></div><div className="mobile-ex-home-screen__app"><ArtSlot label={award.visualLabel} image={award.images?.[0] ?? award.image} className="mobile-ex-home-screen__icon"/><span>TOUHOU<br/>LOSTWORD</span></div><ImageThumbnails images={award.images?.slice(1) ?? []} label="Touhou LostWord screenshots" className="mobile-ex-home-screen__archive"/><div className="mobile-ex-home-screen__apps"><i><Heart size={14}/></i><i><Music2 size={14}/></i><i><BookOpen size={14}/></i></div><div className="mobile-ex-home-screen__dock"><i/><i/><i/><i/></div></div><span className="mobile-ex-installed">INSTALLED<br/><b>STILL HERE ✓</b></span>
   </div>
   return <div className="mobile-ex-award-art mobile-ex-award-art--goty">
-    <div className="mobile-ex-launch-phone"><div className="mobile-ex-launch-phone__earpiece"/><div className="mobile-ex-launch-phone__screen">{slot('mobile-ex-launch-phone__image')}<span className="mobile-ex-launch-phone__brand">HYPERGRYPH<br/><b>EX / 2026</b></span><span className="mobile-ex-launch-phone__start">TAP TO OPEN <ChevronRight size={14}/></span></div></div><div className="mobile-ex-ex-seal"><span>EX PICK</span><b>07</b></div>
+    <div className="mobile-ex-goty-composition">
+      {award.images?.[1] && <figure className="mobile-ex-goty-support mobile-ex-goty-support--left"><img src={award.images[1]} alt="终末地截图 02" loading="lazy" decoding="async"/><figcaption>FIELD NOTE / 02</figcaption></figure>}
+      <div className="mobile-ex-launch-phone"><div className="mobile-ex-launch-phone__earpiece"/><div className="mobile-ex-launch-phone__screen"><ArtSlot label={award.visualLabel} image={award.images?.[0] ?? award.image} className="mobile-ex-launch-phone__image"/><span className="mobile-ex-launch-phone__brand">HYPERGRYPH<br/><b>EX / 2026</b></span><span className="mobile-ex-launch-phone__start">TAP TO OPEN <ChevronRight size={14}/></span></div></div>
+      {award.images?.[2] && <figure className="mobile-ex-goty-support mobile-ex-goty-support--right"><img src={award.images[2]} alt="终末地截图 03" loading="lazy" decoding="async"/><figcaption>FIELD NOTE / 03</figcaption></figure>}
+    </div><div className="mobile-ex-ex-seal"><span>EX PICK</span><b>07</b></div>
   </div>
 }
 
 export function MobileEx2026({ onHome }: { onHome: () => void }) {
   const [sceneIndex, setSceneIndex] = useState(0)
+  const [yuiPhotoSequence] = useState(() => shuffleAfterFirst(mobileExGuest.images))
   const touchStart = useRef<{ x: number; y: number } | null>(null)
   const sceneCount = mobileExAwards.length + 3
   const awardIndex = sceneIndex - 2
@@ -155,14 +185,14 @@ export function MobileEx2026({ onHome }: { onHome: () => void }) {
 
       {sceneIndex === 1 && <article className="mobile-ex-guest-scene mobile-ex-enter">
         <div className="mobile-ex-guest-scene__copy"><span className="mobile-ex-kicker">SCENE 02 / MEET THE EX GUEST</span><p>一起看一下手机的人</p><h1>平泽唯<small>Hirasawa Yui</small></h1><blockquote>“{mobileExGuest.quote}”</blockquote><div className="mobile-ex-guest-note"><span>NOT A HOST</span><i>只是坐在旁边看一眼。</i></div></div>
-        <YuiRoom image={mobileExGuest.image}/>
+        <YuiRoom images={yuiPhotoSequence}/>
       </article>}
 
       {currentAward && <article className={`mobile-ex-award-scene mobile-ex-award-scene--${currentAward.id} mobile-ex-enter`}>
         <header className="mobile-ex-award-heading"><span className="mobile-ex-award-heading__number">{currentAward.number}<i> / 07</i></span><div><span className="mobile-ex-kicker">{currentAward.english}</span><h1>{currentAward.title}</h1><p>{currentAward.game}</p></div><span className="mobile-ex-award-heading__kind">A LITTLE THING<br/>THAT STAYED</span></header>
         <div className="mobile-ex-award-body">
           <div className="mobile-ex-award-body__art"><AwardVisual award={currentAward}/></div>
-          <div className="mobile-ex-note"><div className="mobile-ex-note__byline"><span className="mobile-ex-note__yui">唯</span><span>YUI’S LITTLE NOTE</span><Heart size={14}/></div><p>{currentAward.note}</p><span className="mobile-ex-note__end">嗯，就记在这里吧。<i>— YUI</i></span></div>
+          <div className="mobile-ex-note"><div className="mobile-ex-note__byline"><img className="mobile-ex-note__yui" src={yuiPhotoSequence[awardIndex % yuiPhotoSequence.length]} alt="平泽唯" loading="lazy" decoding="async"/><span>YUI’S LITTLE NOTE<small>平泽唯 / 评委</small></span><Heart size={14}/></div><p>{currentAward.note}</p><span className="mobile-ex-note__end">嗯，就记在这里吧。<i>— YUI</i></span></div>
         </div>
         <div className="mobile-ex-life-map" aria-label="今年手机生活地图">
           <span>MY PHONE, THIS YEAR</span>{mobileExAwards.map((award, index) => <button key={award.id} className={index === awardIndex ? 'is-active' : ''} onClick={() => goTo(index + 2)} aria-label={`跳转至${award.title}`} title={award.title}>{award.number}</button>)}

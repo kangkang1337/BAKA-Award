@@ -24,26 +24,31 @@ image: '/images/2026/guest/suika.webp',
 
 ## 2026 EX: MOBILE 图片
 
-EX 番外使用单独目录，避免和 2026 正篇素材混在一起：
+手机游戏番外的图片单独放在 `ex-mobile/`，按唯和奖项编号分文件夹：
 
 ```text
 public/images/2026/ex-mobile/
-├─ yui.png
-├─ 01-companion.webp
-├─ 02-portrait.webp
-├─ 03-idle.webp
-├─ 04-gifts.webp
-├─ 05-story.webp
-├─ 06-rooted.webp
-└─ 07-mobile-game-of-the-year.webp
+├─ yui/   # 平泽唯出场图片与照片
+├─ 1/     # 最佳陪伴：《异环》
+├─ 2/     # 最佳立绘：《StarSavior》
+├─ 3/     # 最佳摸鱼：《Ancient Gods》
+├─ 4/     # 最会送东西：《异域战记》
+├─ 5/     # 最佳剧情 / 美术：《Reverse:1999》
+├─ 6/     # 最有信仰：《东方LostWord》
+└─ 7/     # MOBILE GAME OF THE YEAR：《终末地》
 ```
 
-开场桌面和各奖项已经有不依赖图片的插画式占位。要替换时，将本地图片放入上面的目录，并在 `src/data/2026-mobile-ex.ts` 对应项填写路径，例如：
+把图片文件放进对应文件夹后，在 `src/data/2026-mobile-ex.ts` 里编辑对应的 `images` 数组。网页路径以 `/images/` 开头，不写 `public` 或本机磁盘路径：
 
 ```ts
-image: '/images/2026/ex-mobile/02-portrait.webp',
+images: [
+  '/images/2026/ex-mobile/2/portrait.webp',
+  '/images/2026/ex-mobile/2/screenshot.jpg',
+],
 ```
 
-图片路径以 `/images/` 开头，不包含 `public`。平泽唯图片填写在 `mobileExGuest.image`；像剧情 / 美术页需要两张图时，填写 `images` 数组。角色立绘建议用透明 PNG/WebP，页面会完整显示，不会裁掉人物。缺图时会继续显示可替换的提示占位。
+平泽唯的图片填写在 `mobileExGuest.images` 数组。第一项始终作为出场图片；现在第一项是 `yui/d0411a877362475ac8ec426fbad6651c684d593f13668-PCKL1i_fw1200webp.webp`。进入番外时，其余图片会随机排序，出场后可以用图片两侧的箭头切换。每个奖项的评语卡片也会显示一张唯的照片。
 
-这些图片仍按根目录 `.gitignore` 只保存在本机；本地打包后部署时，`dist/images/2026/ex-mobile/` 会包含它们。
+文件名可以保留空格；写在 TypeScript 网址中时将空格写成 `%20`，例如 `download%20(1).jpg`。每个普通奖项使用对应编号文件夹中的单张主图，页面会按原比例完整显示。终末地的 `7/` 文件夹可以放三张：`images` 数组第一张作为手机里的主画面，后两张作为旁边的旅行记录图展示，不会压住手机画面或页面导航。
+
+这些图片仍由根目录 `.gitignore` 排除，只保存在本机。运行 `npm run build` 后，本地打包的 `dist/images/2026/ex-mobile/` 会带上这些图片，可用于部署；GitHub 源码仓库不会包含它们。
