@@ -183,6 +183,8 @@ sudo chown -R www-data:www-data /var/www/baka-award
 
 2026 年度数据在 `src/data/2026.ts`；本届图片位置与嘉宾插画替换方法见 [2026 图片添加说明](public/images/2026/README.md)。年度主视觉目前由代码绘制星空和宴席，萃香以剪影呈现。
 
+网站图标和首页角色图放在 `public/images/branding/`，添加规则见[品牌图片说明](public/images/branding/README.md)。这两张图片也受 `.gitignore` 排除，仅存在于本机和本地构建的 `dist/` 中。
+
 图片文件放在 `public/images/2025/games/` 下；比如：
 
 ```text
@@ -269,4 +271,5 @@ src/
 ├── themes/2025.ts    # 2025 年主题
 └── types.ts          # 年度、Guest、Award、Game 类型
 public/images/2025/   # 手动提供的本地图片
+public/images/branding/ # 网站图标与首页品牌插画（图片本机保留）
 ```

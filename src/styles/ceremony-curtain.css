@@ -135,37 +135,37 @@
 @keyframes curtain-open-left {
   0% { transform: translateX(0) rotateY(0); }
   16% { transform: translateX(-9%) rotateY(-3deg); }
-  38% { transform: translateX(-46%) rotateY(-7deg); }
-  72% { transform: translateX(-106%) rotateY(2deg); }
-  86% { transform: translateX(-100%) rotateY(-1deg); }
+  38% { transform: translateX(-52%) rotateY(-11deg); }
+  72% { transform: translateX(-108%) rotateY(3deg); }
+  86% { transform: translateX(-99%) rotateY(-2deg); }
   100% { transform: translateX(-103%) rotateY(0); }
 }
 @keyframes curtain-open-right {
   0% { transform: translateX(0) rotateY(0); }
   16% { transform: translateX(9%) rotateY(3deg); }
-  38% { transform: translateX(46%) rotateY(7deg); }
-  72% { transform: translateX(106%) rotateY(-2deg); }
-  86% { transform: translateX(100%) rotateY(1deg); }
+  38% { transform: translateX(52%) rotateY(11deg); }
+  72% { transform: translateX(108%) rotateY(-3deg); }
+  86% { transform: translateX(99%) rotateY(2deg); }
   100% { transform: translateX(103%) rotateY(0); }
 }
 @keyframes curtain-close-left {
   0% { transform: translateX(-103%) rotateY(0); }
   12% { transform: translateX(-98%) rotateY(-2deg); }
-  48% { transform: translateX(4%) rotateY(1.5deg); }
-  68% { transform: translateX(-2%) rotateY(-.8deg); }
+  48% { transform: translateX(6%) rotateY(3deg); }
+  68% { transform: translateX(-3%) rotateY(-1.5deg); }
   100% { transform: translateX(0) rotateY(0); }
 }
 @keyframes curtain-close-right {
   0% { transform: translateX(103%) rotateY(0); }
   12% { transform: translateX(98%) rotateY(2deg); }
-  48% { transform: translateX(-4%) rotateY(-1.5deg); }
-  68% { transform: translateX(2%) rotateY(.8deg); }
+  48% { transform: translateX(-6%) rotateY(-3deg); }
+  68% { transform: translateX(3%) rotateY(1.5deg); }
   100% { transform: translateX(0) rotateY(0); }
 }
 @keyframes curtain-fabric-sway {
   0%, 100% { transform: skewX(0); opacity: .32; }
-  36% { transform: skewX(-1.4deg) scaleX(1.012); opacity: .48; }
-  72% { transform: skewX(.9deg) scaleX(.994); opacity: .3; }
+  36% { transform: skewX(-2.4deg) scaleX(1.022); opacity: .48; }
+  72% { transform: skewX(1.6deg) scaleX(.986); opacity: .3; }
 }
 @keyframes spotlights-on { from { opacity: 0; } 45% { opacity: 1; } to { opacity: .78; } }
 @keyframes spotlights-off { from { opacity: .78; } 55% { opacity: .56; } to { opacity: 0; } }
