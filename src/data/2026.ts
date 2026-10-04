@@ -1,6 +1,25 @@
 import type { Award, YearData } from '../types'
 import { theme2026 } from '../themes/2026'
 
+const screenshotFilesByAward: Record<string, string[]> = {
+  '01': ['01.webp', '02.webp', '03.webp'],
+  '02': ['01.webp', '02.webp', '03.webp'],
+  '03': ['01.webp', '2.webp'],
+  '04': ['01.webp', '02.webp'],
+  '05': ['01.webp', '02.webp'],
+  '06': ['01.webp', '02.webp', '03.webp'],
+  '07': ['01.webp', '02.webp', '03.webp'],
+  '08': ['01.webp', '02.webp'],
+  '09': ['01.webp', '02.webp', '03.webp'],
+  '10': ['01.webp', '02.webp', '03.webp'],
+  '11': ['01.webp', '02.webp', '03.webp'],
+  '12': ['01.webp', '02.webp', '03.webp'],
+  '13': ['01.webp', '02.webp', '03.webp'],
+  '14': ['01.webp', '02.webp', '03.webp'],
+  '15': ['01.webp', '02.webp', '03.webp'],
+  '16': ['01.webp', '02.webp', '03.webp', '04.webp'],
+}
+
 const plannedAward = (
   id: string,
   number: string,
@@ -9,15 +28,22 @@ const plannedAward = (
   gameName: string,
   description: string,
   layout: Award['layout'],
-): Award => ({
-  id,
-  number,
-  title,
-  english,
-  description,
-  layout,
-  winner: { name: gameName, screenshots: [] },
-})
+): Award => {
+  const imageRoot = '/images/2026'
+  return {
+    id,
+    number,
+    title,
+    english,
+    description,
+    layout,
+    guestImage: `${imageRoot}/guest/${number}.webp`,
+    winner: {
+      name: gameName,
+      screenshots: (screenshotFilesByAward[number] ?? []).map(file => `${imageRoot}/games/${number}/${file}`),
+    },
+  }
+}
 
 export const year2026: YearData = {
   year: 2026,
@@ -26,6 +52,7 @@ export const year2026: YearData = {
   guest: {
     name: '伊吹萃香',
     displayName: '伊吹萃香 / Ibuki Suika',
+    image: '/images/2026/guest/00.webp',
     theme: '星空宴席 · 旅途余晖 · 相遇与同行',
     introduction: '在无边的世界里相遇，然后一起走一程。这一夜，先坐下来歇一会儿。',
     comments: {},

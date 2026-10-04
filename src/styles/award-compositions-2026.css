@@ -1,0 +1,353 @@
+/* Each 2026 award gets its own editorial image composition. Keep source frames whole. */
+.ceremony-page--2026 .award-visual {
+  height: clamp(270px, 40svh, 440px);
+  min-height: 0;
+  aspect-ratio: auto;
+  overflow: hidden;
+  clip-path: none;
+  border-radius: 0;
+  transform: none;
+}
+
+.ceremony-page--2026 .winner-art > img,
+.ceremony-page--2026 .winner-gallery img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  clip-path: none;
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+  background: #0d111a;
+}
+
+.ceremony-page--2026 .winner-gallery img.gallery-image {
+  transform: none;
+}
+
+.ceremony-page--2026 .guest-art img {
+  object-fit: contain;
+  background: #0d111a;
+}
+
+.ceremony-page--2026 .judge-note__label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ceremony-page--2026 .judge-note__portrait {
+  display: block;
+  width: clamp(32px, 3.4vw, 48px);
+  height: clamp(40px, 4.8vw, 64px);
+  max-width: 48px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  object-position: center;
+  background: #0d111a;
+}
+
+.ceremony-page--2026 .winner-gallery {
+  overflow: hidden;
+  padding: clamp(5px, .8vw, 11px);
+  gap: clamp(5px, .8vw, 11px);
+  background: linear-gradient(145deg, #1a1f30, #0c1019 68%);
+}
+
+.ceremony-page--2026 .winner-name,
+.ceremony-page--2026 .winner-time-mark {
+  display: none;
+}
+
+/* 01 — one navigational panorama with two quiet scene notes. */
+.ceremony-page--2026 .winner-gallery--gameplay {
+  grid-template: 1fr 1fr / minmax(0, 1.32fr) minmax(0, .68fr);
+  grid-template-areas: "lead side-a" "lead side-b";
+}
+.winner-gallery--gameplay .gallery-image--1 { grid-area: lead; }
+.winner-gallery--gameplay .gallery-image--2 { grid-area: side-a; }
+.winner-gallery--gameplay .gallery-image--3 { grid-area: side-b; }
+.ceremony-page--2026 .award-gameplay .award-visual { height: clamp(300px, 38svh, 410px); }
+
+/* 02 — narrative: a full-width establishing scene over two character moments. */
+.ceremony-page--2026 .winner-gallery--narrative {
+  grid-template: minmax(0, 1.35fr) minmax(0, .8fr) / 1fr 1fr;
+  grid-template-areas: "lead lead" "detail-a detail-b";
+  background: linear-gradient(180deg, #141a28, #090d15);
+}
+.winner-gallery--narrative .gallery-image--1 { grid-area: lead; }
+.winner-gallery--narrative .gallery-image--2 { grid-area: detail-a; }
+.winner-gallery--narrative .gallery-image--3 { grid-area: detail-b; }
+.ceremony-page--2026 .award-narrative .award-visual { height: clamp(320px, 43svh, 450px); }
+
+/* 03 — a true portrait poster beside its wide in-game view. */
+.ceremony-page--2026 .winner-gallery--art {
+  grid-template: 1fr / minmax(0, .76fr) minmax(0, 1.24fr);
+  grid-template-areas: "poster scene";
+  padding: clamp(8px, 1.4vw, 18px);
+  background: linear-gradient(120deg, #23202c 0 38%, #111520 38% 100%);
+}
+.winner-gallery--art .gallery-image--1 { grid-area: poster; }
+.winner-gallery--art .gallery-image--2 { grid-area: scene; }
+.ceremony-page--2026 .award-art .award-visual { height: clamp(290px, 35.5svh, 320px); }
+
+/* 04 — music: two wide frames read from the title screen into the game. */
+.ceremony-page--2026 .winner-gallery--music {
+  grid-template: minmax(0, 1fr) minmax(0, 1fr) / 1fr;
+  grid-template-areas: "upper" "lower";
+  padding: clamp(7px, 1.2vw, 16px) clamp(10px, 2vw, 26px);
+  background: linear-gradient(90deg, #211b2b, #10131e 50%, #292033);
+}
+.winner-gallery--music .gallery-image--1 { grid-area: upper; }
+.winner-gallery--music .gallery-image--2 { grid-area: lower; }
+.ceremony-page--2026 .award-music .award-visual { height: clamp(300px, 39svh, 420px); }
+
+/* 05 — independent-game spread: a broad playable space with a narrow companion view. */
+.ceremony-page--2026 .winner-gallery--indie {
+  grid-template: 1fr / minmax(0, 1.46fr) minmax(0, .74fr);
+  grid-template-areas: "play detail";
+  padding: 0;
+  gap: 1px;
+  background: #34303a;
+}
+.winner-gallery--indie .gallery-image--1 { grid-area: play; }
+.winner-gallery--indie .gallery-image--2 { grid-area: detail; }
+.ceremony-page--2026 .award-indie .award-visual { height: clamp(270px, 35svh, 390px); }
+
+/* 06 — performance: two beats, then a wide closing frame. */
+.ceremony-page--2026 .winner-gallery--performance {
+  grid-template: minmax(0, 1.05fr) minmax(0, .82fr) / minmax(0, 1.14fr) minmax(0, .86fr);
+  grid-template-areas: "beat-a beat-b" "finale finale";
+  padding: 6px 0;
+  background: linear-gradient(180deg, #141a27, #0d1119);
+}
+.winner-gallery--performance .gallery-image--1 { grid-area: beat-a; }
+.winner-gallery--performance .gallery-image--2 { grid-area: beat-b; }
+.winner-gallery--performance .gallery-image--3 { grid-area: finale; }
+.ceremony-page--2026 .award-performance .award-visual { height: clamp(270px, 34svh, 330px); }
+
+/* 07 — guide: three full-frame chapters stacked like a field manual. */
+.ceremony-page--2026 .winner-gallery--guide {
+  grid-template: repeat(3, minmax(0, 1fr)) / 1fr;
+  grid-template-areas: "chapter-a" "chapter-b" "chapter-c";
+  padding: 3px 0;
+  gap: 2px;
+  background: #34303a;
+}
+.winner-gallery--guide .gallery-image--1 { grid-area: chapter-a; }
+.winner-gallery--guide .gallery-image--2 { grid-area: chapter-b; }
+.winner-gallery--guide .gallery-image--3 { grid-area: chapter-c; }
+.ceremony-page--2026 .award-guide .award-visual { height: clamp(280px, 35svh, 330px); }
+
+/* 08 — racing: a clean panoramic diptych. */
+.ceremony-page--2026 .winner-gallery--one-more-turn {
+  grid-template: 1fr / minmax(0, 1.36fr) minmax(0, .64fr);
+  grid-template-areas: "track-a track-b";
+  padding: 0;
+  gap: 1px;
+  background: #74644f;
+}
+.winner-gallery--one-more-turn .gallery-image--1 { grid-area: track-a; }
+.winner-gallery--one-more-turn .gallery-image--2 { grid-area: track-b; }
+.ceremony-page--2026 .award-one-more-turn .award-visual { height: clamp(250px, 33svh, 360px); }
+
+/* 09 — the unexpected discovery takes the large panel; two scenes annotate it. */
+.ceremony-page--2026 .winner-gallery--surprise {
+  grid-template: 1fr 1fr / minmax(0, .78fr) minmax(0, 1.22fr);
+  grid-template-areas: "note-a discovery" "note-b discovery";
+  padding: clamp(8px, 1.2vw, 16px);
+  background: linear-gradient(110deg, #1d1a21, #171821 52%, #302522);
+}
+.winner-gallery--surprise .gallery-image--1 { grid-area: discovery; }
+.winner-gallery--surprise .gallery-image--2 { grid-area: note-a; }
+.winner-gallery--surprise .gallery-image--3 { grid-area: note-b; }
+.ceremony-page--2026 .award-surprise .award-visual { height: clamp(270px, 34svh, 330px); }
+
+/* 10 — three separate starfield windows, offset in a vertical column. */
+.ceremony-page--2026 .winner-gallery--just-like-it {
+  grid-template: 1fr 1fr / minmax(0, .92fr) minmax(0, 1.08fr);
+  grid-template-areas: "window-a window-b" "window-c window-b";
+  padding: clamp(9px, 1.5vw, 20px);
+  gap: clamp(7px, 1vw, 13px);
+  background: radial-gradient(ellipse at 72% 52%, #8d8aa322, transparent 55%), #10131f;
+}
+.winner-gallery--just-like-it .gallery-image--1 { grid-area: window-a; }
+.winner-gallery--just-like-it .gallery-image--2 { grid-area: window-b; }
+.winner-gallery--just-like-it .gallery-image--3 { grid-area: window-c; }
+.ceremony-page--2026 .award-just-like-it .award-visual { height: clamp(300px, 39svh, 420px); }
+
+/* 11 — one square illustration anchors two landscape receipts below it. */
+.ceremony-page--2026 .winner-gallery--most-loss {
+  grid-template: 1fr 1fr / minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "receipt record-a" "receipt record-b";
+  padding: clamp(7px, 1vw, 13px);
+  background: linear-gradient(145deg, #20202a, #12131c);
+}
+.winner-gallery--most-loss .gallery-image--1 { grid-area: receipt; }
+.winner-gallery--most-loss .gallery-image--2 { grid-area: record-a; }
+.winner-gallery--most-loss .gallery-image--3 { grid-area: record-b; }
+.ceremony-page--2026 .award-most-loss .award-visual { height: clamp(330px, 42svh, 450px); }
+
+/* 12 — the elder's journey unfolds as a three-panel panorama. */
+.ceremony-page--2026 .winner-gallery--elder {
+  grid-template: 1fr / repeat(3, minmax(0, 1fr));
+  grid-template-areas: "vista-a vista-b vista-c";
+  padding: 0;
+  gap: 1px;
+  background: #3a3130;
+}
+.winner-gallery--elder .gallery-image--1 { grid-area: vista-a; }
+.winner-gallery--elder .gallery-image--2 { grid-area: vista-b; }
+.winner-gallery--elder .gallery-image--3 { grid-area: vista-c; }
+.ceremony-page--2026 .award-elder .award-content {
+  grid-template-areas: "art art" "story quote";
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: clamp(170px, 20svh, 200px) minmax(0, 1fr);
+  gap: 18px 26px;
+}
+.ceremony-page--2026 .award-elder .award-visual { height: clamp(170px, 20svh, 200px); }
+
+/* 13 — the key character frame holds one side; gameplay moments line the other. */
+.ceremony-page--2026 .winner-gallery--touhou-intro {
+  grid-template: 1fr 1fr / minmax(0, .78fr) minmax(0, 1.22fr);
+  grid-template-areas: "awakening portrait" "spell portrait";
+  padding: clamp(8px, 1.2vw, 16px);
+  background: linear-gradient(135deg, #1b202d, #242333 55%, #11141e);
+}
+.winner-gallery--touhou-intro .gallery-image--1 { grid-area: portrait; }
+.winner-gallery--touhou-intro .gallery-image--2 { grid-area: awakening; }
+.winner-gallery--touhou-intro .gallery-image--3 { grid-area: spell; }
+.ceremony-page--2026 .award-touhou-intro .award-visual { height: clamp(280px, 35svh, 335px); }
+
+/* 14 — a long campfire scene leads into two distant-world notes. */
+.ceremony-page--2026 .winner-gallery--more-than-game {
+  grid-template: 1fr 1fr / minmax(0, .68fr) minmax(0, 1.32fr);
+  grid-template-areas: "world-a journey" "world-b journey";
+  padding: clamp(6px, .9vw, 12px);
+  background: linear-gradient(180deg, #1a1e2a, #10131b);
+}
+.winner-gallery--more-than-game .gallery-image--1 { grid-area: journey; }
+.winner-gallery--more-than-game .gallery-image--2 { grid-area: world-a; }
+.winner-gallery--more-than-game .gallery-image--3 { grid-area: world-b; }
+.ceremony-page--2026 .award-more-than-game .award-visual { height: clamp(310px, 41svh, 440px); }
+
+/* 15 — the year closes on one large vista with two smaller memories beneath. */
+.ceremony-page--2026 .winner-gallery--goty {
+  grid-template: 1fr 1fr / minmax(0, .92fr) minmax(0, 1.08fr);
+  grid-template-areas: "memory-a final-vista" "memory-b final-vista";
+  padding: clamp(7px, 1vw, 14px);
+  background: linear-gradient(180deg, #28202a, #11141e 70%);
+}
+.winner-gallery--goty .gallery-image--1 { grid-area: final-vista; }
+.winner-gallery--goty .gallery-image--2 { grid-area: memory-a; }
+.winner-gallery--goty .gallery-image--3 { grid-area: memory-b; }
+.ceremony-page--2026 .award-goty .award-visual { height: clamp(340px, 45svh, 470px); }
+
+/* 16 — four-panel last toast: one broad scene, three smaller complete frames. */
+.ceremony-page--2026 .winner-gallery--suika-pick {
+  grid-template: minmax(0, 1.38fr) minmax(0, .72fr) / repeat(3, minmax(0, 1fr));
+  grid-template-areas: "toast toast toast" "memory-a memory-b memory-c";
+  padding: clamp(6px, .9vw, 12px);
+  gap: clamp(5px, .8vw, 10px);
+  background: linear-gradient(150deg, #2a2024, #10141e 62%, #28212c);
+}
+.winner-gallery--suika-pick .gallery-image--1 { grid-area: toast; }
+.winner-gallery--suika-pick .gallery-image--2 { grid-area: memory-a; }
+.winner-gallery--suika-pick .gallery-image--3 { grid-area: memory-b; }
+.winner-gallery--suika-pick .gallery-image--4 { grid-area: memory-c; }
+.ceremony-page--2026 .award-suika-pick .award-visual { height: clamp(340px, 45svh, 470px); }
+
+@media (max-width: 900px) and (min-width: 641px) {
+  .ceremony-page--2026 .award-visual { height: clamp(300px, 42svh, 460px); }
+}
+
+@media (max-width: 640px) {
+  .ceremony-page--2026 .award-visual { height: clamp(205px, 29svh, 270px); }
+  .ceremony-page--2026 .judge-note__portrait { width: 27px; height: 34px; }
+  .ceremony-page--2026 .winner-gallery { padding: 5px; gap: 4px; }
+  .ceremony-page--2026 .winner-gallery--gameplay,
+  .ceremony-page--2026 .winner-gallery--surprise,
+  .ceremony-page--2026 .winner-gallery--just-like-it,
+  .ceremony-page--2026 .winner-gallery--touhou-intro {
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  }
+  .ceremony-page--2026 .winner-gallery--art { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); }
+  .ceremony-page--2026 .winner-gallery--music { grid-template-rows: 1fr 1fr; }
+  .ceremony-page--2026 .winner-gallery--performance { grid-template-rows: 1fr .78fr; }
+  .ceremony-page--2026 .winner-gallery--guide { grid-template-rows: repeat(3, minmax(0, 1fr)); }
+  .ceremony-page--2026 .winner-gallery--one-more-turn { grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); }
+  .ceremony-page--2026 .winner-gallery--elder { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ceremony-page--2026 .winner-gallery--most-loss,
+  .ceremony-page--2026 .winner-gallery--goty { grid-template-rows: minmax(0, 1.2fr) minmax(0, .8fr); }
+  .ceremony-page--2026 .winner-gallery--more-than-game { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+  .ceremony-page--2026 .winner-gallery--goty {
+    grid-template: minmax(0, 1.2fr) minmax(0, .8fr) / 1fr 1fr;
+    grid-template-areas: "final-vista final-vista" "memory-a memory-b";
+  }
+  .ceremony-page--2026 .award-elder .award-content {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 11px;
+  }
+  .ceremony-page--2026 .award-elder .award-visual { order: 3; }
+  .ceremony-page--2026 .award-elder .award-story { order: 2; }
+  .ceremony-page--2026 .award-elder .judge-note { order: 1; }
+  .ceremony-page--2026 .winner-gallery--elder {
+    grid-template: repeat(3, minmax(0, 1fr)) / minmax(0, 1fr);
+    grid-template-areas: "vista-a" "vista-b" "vista-c";
+  }
+  .ceremony-page--2026 .award-elder .award-visual { height: clamp(270px, 34svh, 310px); }
+  .ceremony-page--2026 .winner-gallery--suika-pick { grid-template-rows: minmax(0, 1.3fr) minmax(0, .7fr); }
+  .ceremony-page--2026 .layout-special .award-visual { height: clamp(220px, 32svh, 270px); }
+}
+
+/* Give each editorial slot enough specificity to override the legacy first-image span. */
+.ceremony-page--2026 .winner-gallery--gameplay img.gallery-image--1 { grid-area: lead; }
+.ceremony-page--2026 .winner-gallery--gameplay img.gallery-image--2 { grid-area: side-a; }
+.ceremony-page--2026 .winner-gallery--gameplay img.gallery-image--3 { grid-area: side-b; }
+.ceremony-page--2026 .winner-gallery--narrative img.gallery-image--1 { grid-area: lead; }
+.ceremony-page--2026 .winner-gallery--narrative img.gallery-image--2 { grid-area: detail-a; }
+.ceremony-page--2026 .winner-gallery--narrative img.gallery-image--3 { grid-area: detail-b; }
+.ceremony-page--2026 .winner-gallery--art img.gallery-image--1 { grid-area: poster; }
+.ceremony-page--2026 .winner-gallery--art img.gallery-image--2 { grid-area: scene; }
+.ceremony-page--2026 .winner-gallery--music img.gallery-image--1 { grid-area: upper; }
+.ceremony-page--2026 .winner-gallery--music img.gallery-image--2 { grid-area: lower; }
+.ceremony-page--2026 .winner-gallery--indie img.gallery-image--1 { grid-area: play; }
+.ceremony-page--2026 .winner-gallery--indie img.gallery-image--2 { grid-area: detail; }
+.ceremony-page--2026 .winner-gallery--performance img.gallery-image--1 { grid-area: beat-a; }
+.ceremony-page--2026 .winner-gallery--performance img.gallery-image--2 { grid-area: beat-b; }
+.ceremony-page--2026 .winner-gallery--performance img.gallery-image--3 { grid-area: finale; }
+.ceremony-page--2026 .winner-gallery--guide img.gallery-image--1 { grid-area: chapter-a; }
+.ceremony-page--2026 .winner-gallery--guide img.gallery-image--2 { grid-area: chapter-b; }
+.ceremony-page--2026 .winner-gallery--guide img.gallery-image--3 { grid-area: chapter-c; }
+.ceremony-page--2026 .winner-gallery--one-more-turn img.gallery-image--1 { grid-area: track-a; }
+.ceremony-page--2026 .winner-gallery--one-more-turn img.gallery-image--2 { grid-area: track-b; }
+.ceremony-page--2026 .winner-gallery--surprise img.gallery-image--1 { grid-area: discovery; }
+.ceremony-page--2026 .winner-gallery--surprise img.gallery-image--2 { grid-area: note-a; }
+.ceremony-page--2026 .winner-gallery--surprise img.gallery-image--3 { grid-area: note-b; }
+.ceremony-page--2026 .winner-gallery--just-like-it img.gallery-image--1 { grid-area: window-a; }
+.ceremony-page--2026 .winner-gallery--just-like-it img.gallery-image--2 { grid-area: window-b; }
+.ceremony-page--2026 .winner-gallery--just-like-it img.gallery-image--3 { grid-area: window-c; }
+.ceremony-page--2026 .winner-gallery--most-loss img.gallery-image--1 { grid-area: receipt; }
+.ceremony-page--2026 .winner-gallery--most-loss img.gallery-image--2 { grid-area: record-a; }
+.ceremony-page--2026 .winner-gallery--most-loss img.gallery-image--3 { grid-area: record-b; }
+.ceremony-page--2026 .winner-gallery--elder img.gallery-image--1 { grid-area: vista-a; }
+.ceremony-page--2026 .winner-gallery--elder img.gallery-image--2 { grid-area: vista-b; }
+.ceremony-page--2026 .winner-gallery--elder img.gallery-image--3 { grid-area: vista-c; }
+.ceremony-page--2026 .winner-gallery--touhou-intro img.gallery-image--1 { grid-area: portrait; }
+.ceremony-page--2026 .winner-gallery--touhou-intro img.gallery-image--2 { grid-area: awakening; }
+.ceremony-page--2026 .winner-gallery--touhou-intro img.gallery-image--3 { grid-area: spell; }
+.ceremony-page--2026 .winner-gallery--more-than-game img.gallery-image--1 { grid-area: journey; }
+.ceremony-page--2026 .winner-gallery--more-than-game img.gallery-image--2 { grid-area: world-a; }
+.ceremony-page--2026 .winner-gallery--more-than-game img.gallery-image--3 { grid-area: world-b; }
+.ceremony-page--2026 .winner-gallery--goty img.gallery-image--1 { grid-area: final-vista; }
+.ceremony-page--2026 .winner-gallery--goty img.gallery-image--2 { grid-area: memory-a; }
+.ceremony-page--2026 .winner-gallery--goty img.gallery-image--3 { grid-area: memory-b; }
+.ceremony-page--2026 .winner-gallery--suika-pick img.gallery-image--1 { grid-area: toast; }
+.ceremony-page--2026 .winner-gallery--suika-pick img.gallery-image--2 { grid-area: memory-a; }
+.ceremony-page--2026 .winner-gallery--suika-pick img.gallery-image--3 { grid-area: memory-b; }
+.ceremony-page--2026 .winner-gallery--suika-pick img.gallery-image--4 { grid-area: memory-c; }
