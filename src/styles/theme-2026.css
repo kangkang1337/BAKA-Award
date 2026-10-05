@@ -293,7 +293,15 @@
   transform: rotate(-.35deg);
 }
 .ceremony-page--2026 .judge-note__label { color: #dfad8c; }
-.ceremony-page--2026 .judge-note p { color: #d0cbd2; white-space: pre-line; }
+.ceremony-page--2026 .judge-note p {
+  max-height: min(30svh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #dfad8c66 transparent;
+  color: #d0cbd2;
+  white-space: pre-line;
+}
 .ceremony-page--2026 .layout-chaos .judge-note { background: #181822d9; }
 .ceremony-page--2026 .layout-time .judge-note { border-color: #a6a2c455; }
 .ceremony-page--2026 .layout-warm .judge-note { border-color: #d19a7855; }
@@ -317,6 +325,7 @@
   transform: translateY(-50%);
 }
 .ceremony-page--2026 .finale-scene>p:first-of-type { color: #dcaa87; }
+.ceremony-page--2026 .finale-note { white-space: pre-line; }
 .ceremony-page--2026 .finale-scene h1 span { color: #d7b096; }
 .ceremony-page--2026 .finale-home { color: #171722; background: #d19a78; }
 .ceremony-page--2026 .finale-home:hover { background: #edc8a9; }

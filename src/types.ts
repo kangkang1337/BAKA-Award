@@ -42,6 +42,7 @@ export interface YearTheme {
 export interface YearData {
   year: number
   edition: string
+  finaleNote?: string
   guest: Guest
   theme: YearTheme
   awards: Award[]
