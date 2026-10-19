@@ -1,9 +1,10 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
+import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
 import { mkdirSync } from 'node:fs'
 import { createServer as createHttpServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { pathToFileURL } from 'node:url'
+import { resolveSteamProxySettings, safeSystemErrorCode, SteamOperationError, createSteamHttpClient } from './steam-film-http.ts'
 
 const OPENID_ENDPOINT = 'https://steamcommunity.com/openid/login'
 const STEAM_GAMES_ENDPOINT = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/'
@@ -20,6 +21,7 @@ export interface SteamFilmConfig {
   publicOrigin: string | null
   sessionSecret: string | null
   databasePath: string
+  steamHttpsProxy?: string | null
   host: string
   port: number
   production: boolean
@@ -33,12 +35,18 @@ interface SteamGameApiItem {
   rtime_last_played?: unknown
 }
 
-class SafeHttpError extends Error {
+export class SafeHttpError extends Error {
   readonly status: number
+  readonly category: string
+  readonly systemErrorCode?: string
+  readonly failureCode: string
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, category = 'request-rejected', systemErrorCode?: string, failureCode?: string) {
     super(message)
     this.status = status
+    this.category = category
+    this.systemErrorCode = systemErrorCode
+    this.failureCode = failureCode ?? (systemErrorCode ? `${category}:${systemErrorCode}` : category)
   }
 }
 
@@ -76,6 +84,7 @@ export function readConfig(env: Record<string, string | undefined> = process.env
   const apiKey = env.STEAM_API_KEY?.trim() || null
   const ownerId = env.STEAM_OWNER_ID?.trim() || null
   const sessionSecret = env.SESSION_SECRET?.trim() || null
+  const steamHttpsProxy = resolveSteamProxySettings(env).url
   const validApiKey = apiKey && /^[a-f\d]{32}$/i.test(apiKey) ? apiKey : null
   const validOwnerId = ownerId && /^\d{17}$/.test(ownerId) ? ownerId : null
   const validSessionSecret = sessionSecret && Buffer.byteLength(sessionSecret) >= 32 ? sessionSecret : null
@@ -88,6 +97,7 @@ export function readConfig(env: Record<string, string | undefined> = process.env
     publicOrigin,
     sessionSecret: validSessionSecret,
     databasePath,
+    steamHttpsProxy,
     host: requestedHost,
     port,
     production,
@@ -126,13 +136,36 @@ export function createStore(db: DatabaseSync) {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS sync_batches (
+      batch_id TEXT PRIMARY KEY,
+      owner_steam_id TEXT NOT NULL,
+      started_at TEXT NOT NULL,
+      completed_at TEXT,
+      status TEXT NOT NULL CHECK(status IN ('running', 'succeeded', 'failed')),
+      sampled_game_count INTEGER NOT NULL DEFAULT 0 CHECK(sampled_game_count >= 0),
+      snapshot_count INTEGER NOT NULL DEFAULT 0 CHECK(snapshot_count >= 0),
+      regression_count INTEGER NOT NULL DEFAULT 0 CHECK(regression_count >= 0),
+      error_code TEXT
+    );
+    CREATE INDEX IF NOT EXISTS sync_batches_owner_time_idx ON sync_batches(owner_steam_id, completed_at);
+    CREATE TABLE IF NOT EXISTS game_playtime_snapshots (
+      batch_id TEXT NOT NULL REFERENCES sync_batches(batch_id) ON DELETE CASCADE,
+      owner_steam_id TEXT NOT NULL,
+      steam_app_id INTEGER NOT NULL,
+      captured_at TEXT NOT NULL,
+      playtime_minutes INTEGER NOT NULL CHECK(playtime_minutes >= 0),
+      regressed INTEGER NOT NULL DEFAULT 0 CHECK(regressed IN (0, 1)),
+      previous_playtime_minutes INTEGER CHECK(previous_playtime_minutes IS NULL OR previous_playtime_minutes >= 0),
+      PRIMARY KEY(batch_id, steam_app_id)
+    );
+    CREATE INDEX IF NOT EXISTS game_snapshots_owner_game_time_idx ON game_playtime_snapshots(owner_steam_id, steam_app_id, captured_at);
     CREATE INDEX IF NOT EXISTS sessions_expiry_idx ON sessions(expires_at);
     CREATE INDEX IF NOT EXISTS login_nonces_expiry_idx ON login_nonces(expires_at);
   `)
   return db
 }
 
-function openStore(path: string) {
+export function openStore(path: string) {
   mkdirSync(dirname(path), { recursive: true })
   const db = new DatabaseSync(path)
   db.exec('PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;')
@@ -246,7 +279,7 @@ function gameFromRow(row: Record<string, unknown>) {
   }
 }
 
-function getGames(db: DatabaseSync) {
+export function getGames(db: DatabaseSync) {
   const rows = db.prepare(`
     SELECT steam_app_id AS steamAppId, name, header_image AS headerImage,
       first_played_at AS firstPlayedAt, first_seen_at AS firstSeenAt,
@@ -267,7 +300,7 @@ function setMeta(db: DatabaseSync, key: string, value: string) {
   db.prepare('INSERT INTO archive_meta(key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, value)
 }
 
-function getMeta(db: DatabaseSync, key: string) {
+export function getMeta(db: DatabaseSync, key: string) {
   return (db.prepare('SELECT value FROM archive_meta WHERE key = ?').get(key) as { value: string } | undefined)?.value ?? null
 }
 
@@ -364,14 +397,53 @@ async function steamOpenIdCallback(requestUrl: URL, request: IncomingMessage, re
   redirect(response, new URL('/steam-film', config.publicOrigin).href)
 }
 
-async function syncOwnedGames(db: DatabaseSync, config: SteamFilmConfig, session: { steamId: string }, fetcher: typeof fetch) {
+function markSyncBatchFailed(db: DatabaseSync, batchId: string, errorCode: string) {
+  try {
+    db.prepare(`UPDATE sync_batches SET status = 'failed', completed_at = ?, error_code = ? WHERE batch_id = ? AND status = 'running'`)
+      .run(new Date().toISOString(), errorCode, batchId)
+  } catch {
+    // A persistent database failure may also prevent recording the failed batch.
+  }
+}
+
+function storedFailureCode(category: string, options: { systemErrorCode?: string; httpStatus?: number } = {}) {
+  if (options.systemErrorCode && /^[A-Z0-9_]{2,64}$/.test(options.systemErrorCode)) {
+    return `${category}:${options.systemErrorCode}`
+  }
+  if (options.httpStatus && Number.isInteger(options.httpStatus)) return `${category}:HTTP_${options.httpStatus}`
+  return category
+}
+
+export async function syncOwnedGames(
+  db: DatabaseSync,
+  config: SteamFilmConfig,
+  session: { steamId: string },
+  fetcher: typeof fetch,
+  options: { enforceCooldown?: boolean } = {},
+) {
   if (!config.apiKey) throw new SafeHttpError('Steam Web API Key 尚未配置。', 503)
+  if (config.ownerId && session.steamId !== config.ownerId) throw new SafeHttpError('同步目标与本地配置的 Steam 账号不一致。', 403)
+  const storedOwner = getMeta(db, 'owner_steam_id')
+  if (storedOwner && storedOwner !== session.steamId) throw new SafeHttpError('此档案数据库已绑定另一 Steam 账号。', 409)
+
   const startedAt = Date.now()
+  const enforceCooldown = options.enforceCooldown !== false
   const lastStartedAt = Number(getMeta(db, 'last_sync_started_at') || 0)
-  if (lastStartedAt && startedAt - lastStartedAt < SYNC_COOLDOWN_MS) {
+  if (enforceCooldown && lastStartedAt && startedAt - lastStartedAt < SYNC_COOLDOWN_MS) {
     throw new SafeHttpError('刚刚已经同步过，请稍等一分钟再试。', 429)
   }
-  setMeta(db, 'last_sync_started_at', String(startedAt))
+  if (enforceCooldown) setMeta(db, 'last_sync_started_at', String(startedAt))
+
+  const batchId = randomUUID()
+  const batchStartedAt = new Date(startedAt).toISOString()
+  try {
+    db.prepare(`INSERT INTO sync_batches(batch_id, owner_steam_id, started_at, status) VALUES(?, ?, ?, 'running')`)
+      .run(batchId, session.steamId, batchStartedAt)
+  } catch (error) {
+    const systemErrorCode = safeSystemErrorCode(error)
+    const failureCode = storedFailureCode('database-write-failed', { systemErrorCode })
+    throw new SafeHttpError('无法创建同步批次；数据库写入失败。', 500, 'database-write-failed', systemErrorCode, failureCode)
+  }
 
   const url = new URL(STEAM_GAMES_ENDPOINT)
   url.searchParams.set('key', config.apiKey)
@@ -380,46 +452,91 @@ async function syncOwnedGames(db: DatabaseSync, config: SteamFilmConfig, session
   url.searchParams.set('include_played_free_games', 'true')
   url.searchParams.set('format', 'json')
 
+  let result: Response
+  try {
+    result = await fetcher(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(15_000) })
+  } catch (error) {
+    const operationError = error instanceof SteamOperationError
+      ? error
+      : new SteamOperationError('steam-network-error', { systemErrorCode: safeSystemErrorCode(error) })
+    const failureCode = storedFailureCode(operationError.category, { systemErrorCode: operationError.systemErrorCode })
+    markSyncBatchFailed(db, batchId, failureCode)
+    const message = operationError.category === 'steam-proxy-connection-error'
+      ? 'Steam API 经配置的代理连接失败。请检查本机代理客户端是否运行及代理配置。'
+      : 'Steam API 网络请求失败。请检查网络连接与 DNS；本次请求未回退为直连。'
+    throw new SafeHttpError(message, 502, operationError.category, operationError.systemErrorCode, failureCode)
+  }
+
+  if (!result.ok) {
+    const category = result.status === 401 || result.status === 403 ? 'steam-api-rejected' : 'steam-http-error'
+    const failureCode = storedFailureCode(category, { httpStatus: result.status })
+    markSyncBatchFailed(db, batchId, failureCode)
+    const message = result.status === 429
+      ? 'Steam API 暂时限制了请求，请稍后再试。'
+      : category === 'steam-api-rejected'
+        ? 'Steam API 拒绝了请求；请检查 API Key 与游戏详情隐私设置。'
+        : 'Steam API 返回了 HTTP 错误；游戏档案未更改。'
+    throw new SafeHttpError(message, 502, category, undefined, failureCode)
+  }
+
   let payload: { response?: { games?: SteamGameApiItem[] } }
   try {
-    const result = await fetcher(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(15_000) })
-    if (result.status === 429) throw new SafeHttpError('Steam API 请求过于频繁，请稍后再同步。', 429)
-    if (!result.ok) throw new SafeHttpError('Steam API 暂时无法读取游戏库。请检查账号隐私设置和服务器 API Key。', 502)
     payload = await result.json() as { response?: { games?: SteamGameApiItem[] } }
   } catch (error) {
-    if (error instanceof SafeHttpError) throw error
-    throw new SafeHttpError('无法读取 Steam 游戏库。请确认游戏详情为公开，并检查服务器端 Steam API Key。', 502)
+    if (error instanceof SyntaxError) {
+      markSyncBatchFailed(db, batchId, 'steam-response-invalid')
+      throw new SafeHttpError('Steam API 返回的内容不是有效 JSON；游戏档案未更改。', 502, 'steam-response-invalid')
+    }
+    const systemErrorCode = safeSystemErrorCode(error)
+    const failureCode = storedFailureCode('steam-network-error', { systemErrorCode })
+    markSyncBatchFailed(db, batchId, failureCode)
+    throw new SafeHttpError('读取 Steam API 响应时网络连接中断；游戏档案未更改。', 502, 'steam-network-error', systemErrorCode)
   }
 
   if (!payload || typeof payload !== 'object' || Array.isArray(payload) || !Array.isArray(payload.response?.games)) {
-    throw new SafeHttpError('Steam 没有返回可读取的游戏库。请确认账号的游戏详情为公开。', 422)
+    markSyncBatchFailed(db, batchId, 'steam-response-invalid')
+    throw new SafeHttpError('Steam API 返回结构异常；游戏档案未更改。', 422, 'steam-response-invalid')
   }
   if (payload.response.games.length > MAX_OWNED_GAMES) {
-    throw new SafeHttpError('游戏记录超过单次同步上限，请联系站点维护者。', 422)
+    markSyncBatchFailed(db, batchId, 'steam-data-invalid')
+    throw new SafeHttpError('Steam 返回的游戏数量超过校验上限；游戏档案未更改。', 422, 'steam-data-invalid')
   }
 
   const seenAppIds = new Set<number>()
   for (const game of payload.response.games) {
     if (!game || typeof game !== 'object' || Array.isArray(game)) {
-      throw new SafeHttpError('Steam 返回了格式异常的游戏记录；已有档案未更改。', 422)
+      markSyncBatchFailed(db, batchId, 'steam-data-invalid')
+      throw new SafeHttpError('Steam 返回了格式异常的游戏记录；已有档案未更改。', 422, 'steam-data-invalid')
     }
     const name = typeof game.name === 'string' ? game.name.trim() : ''
     if (typeof game.appid !== 'number' || !Number.isSafeInteger(game.appid) || game.appid <= 0 || !name) {
-      throw new SafeHttpError('Steam 返回了不完整的游戏记录；已有档案未更改。', 422)
+      markSyncBatchFailed(db, batchId, 'steam-data-invalid')
+      throw new SafeHttpError('Steam 返回了不完整的游戏记录；已有档案未更改。', 422, 'steam-data-invalid')
     }
-    if (seenAppIds.has(game.appid)) throw new SafeHttpError('Steam 返回了重复游戏记录；已有档案未更改。', 422)
+    if (seenAppIds.has(game.appid)) {
+      markSyncBatchFailed(db, batchId, 'steam-data-invalid')
+      throw new SafeHttpError('Steam 返回了重复游戏记录；已有档案未更改。', 422, 'steam-data-invalid')
+    }
     seenAppIds.add(game.appid)
     for (const field of ['playtime_forever', 'playtime_2weeks', 'rtime_last_played'] as const) {
       const value = game[field]
       if (value !== undefined && value !== null && (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0)) {
-        throw new SafeHttpError('Steam 返回了格式异常的游玩记录；已有档案未更改。', 422)
+        markSyncBatchFailed(db, batchId, 'steam-data-invalid')
+        throw new SafeHttpError('Steam 返回了格式异常的游玩记录；已有档案未更改。', 422, 'steam-data-invalid')
       }
     }
   }
 
   const now = new Date().toISOString()
-  db.exec('BEGIN IMMEDIATE')
+  let snapshotCount = 0
+  let regressionCount = 0
+  let transactionStarted = false
   try {
+    db.exec('BEGIN IMMEDIATE')
+    transactionStarted = true
+    const databaseOwner = getMeta(db, 'owner_steam_id')
+    if (databaseOwner && databaseOwner !== session.steamId) throw new SafeHttpError('此档案数据库已绑定另一 Steam 账号。', 409, 'database-owner-mismatch')
+    setMeta(db, 'owner_steam_id', session.steamId)
     const upsert = db.prepare(`
       INSERT INTO steam_games (
         steam_app_id, name, header_image, first_played_at, first_seen_at,
@@ -436,28 +553,68 @@ async function syncOwnedGames(db: DatabaseSync, config: SteamFilmConfig, session
         data_source = excluded.data_source,
         updated_at = excluded.updated_at
     `)
+    const priorGame = db.prepare('SELECT playtime_minutes AS playtimeMinutes FROM steam_games WHERE steam_app_id = ?')
+    const latestSnapshot = db.prepare(`
+      SELECT s.playtime_minutes AS playtimeMinutes
+      FROM game_playtime_snapshots s
+      JOIN sync_batches b ON b.batch_id = s.batch_id
+      WHERE s.owner_steam_id = ? AND s.steam_app_id = ? AND b.status = 'succeeded'
+      ORDER BY s.captured_at DESC LIMIT 1
+    `)
+    const saveSnapshot = db.prepare(`
+      INSERT INTO game_playtime_snapshots(
+        batch_id, owner_steam_id, steam_app_id, captured_at, playtime_minutes,
+        regressed, previous_playtime_minutes
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    `)
     for (const game of payload.response.games) {
       const appId = game.appid
       const name = typeof game.name === 'string' ? game.name.trim().slice(0, 300) : ''
       const playtime = typeof game.playtime_forever === 'number' && Number.isSafeInteger(game.playtime_forever) && game.playtime_forever >= 0 ? game.playtime_forever : null
       const recent = typeof game.playtime_2weeks === 'number' && Number.isSafeInteger(game.playtime_2weeks) && game.playtime_2weeks >= 0 ? game.playtime_2weeks : null
       const image = `https://cdn.akamai.steamstatic.com/steam/apps/${appId}/header.jpg`
+      if (playtime !== null) {
+        const previous = latestSnapshot.get(session.steamId, appId) as { playtimeMinutes: number } | undefined
+        const baseline = previous?.playtimeMinutes ?? (priorGame.get(appId) as { playtimeMinutes: number | null } | undefined)?.playtimeMinutes ?? null
+        const regressed = baseline !== null && playtime < baseline
+        saveSnapshot.run(batchId, session.steamId, appId, now, playtime, regressed ? 1 : 0, baseline)
+        snapshotCount++
+        if (regressed) regressionCount++
+      }
       upsert.run(appId, name, image, now, toIsoEpoch(game.rtime_last_played), playtime, recent, 'Steam Web API · IPlayerService/GetOwnedGames', now)
     }
     setMeta(db, 'last_synced_at', now)
+    db.prepare(`
+      UPDATE sync_batches SET status = 'succeeded', completed_at = ?,
+        sampled_game_count = ?, snapshot_count = ?, regression_count = ?, error_code = NULL
+      WHERE batch_id = ? AND status = 'running'
+    `).run(now, payload.response.games.length, snapshotCount, regressionCount, batchId)
     db.exec('COMMIT')
+    transactionStarted = false
   } catch (error) {
-    db.exec('ROLLBACK')
-    throw error
+    if (transactionStarted) {
+      try { db.exec('ROLLBACK') } catch { /* The transaction may already have rolled back. */ }
+    }
+    const systemErrorCode = error instanceof SafeHttpError ? error.systemErrorCode : safeSystemErrorCode(error)
+    const failureCode = error instanceof SafeHttpError
+      ? error.failureCode
+      : storedFailureCode('database-write-failed', { systemErrorCode })
+    markSyncBatchFailed(db, batchId, failureCode)
+    if (error instanceof SafeHttpError) throw error
+    throw new SafeHttpError('Steam 数据库写入失败；本次事务已回滚。', 500, 'database-write-failed', systemErrorCode, failureCode)
   }
-  return { lastSyncedAt: now, gameCount: getGames(db).length }
+  return { batchId, lastSyncedAt: now, gameCount: getGames(db).length, sampledGameCount: payload.response.games.length, snapshotCount, regressionCount }
 }
 
-export function createSteamFilmServer(options: { config: SteamFilmConfig; db?: DatabaseSync; fetcher?: typeof fetch } ) {
+export function createSteamFilmServer(options: { config: SteamFilmConfig; db?: DatabaseSync; fetcher?: typeof fetch; steamFetcher?: typeof fetch } ) {
   const { config } = options
   const db = options.db ?? openStore(config.databasePath)
   createStore(db)
   const fetcher = options.fetcher ?? fetch
+  const steamHttpClient = options.steamFetcher || options.fetcher
+    ? null
+    : createSteamHttpClient(resolveSteamProxySettings({ STEAM_FILM_HTTPS_PROXY: config.steamHttpsProxy ?? undefined }))
+  const steamFetcher = options.steamFetcher ?? options.fetcher ?? steamHttpClient!.fetch
 
   const server = createHttpServer((request, response) => {
     void (async () => {
@@ -516,9 +673,14 @@ export function createSteamFilmServer(options: { config: SteamFilmConfig; db?: D
         if (!session) { json(response, 401, { error: 'Steam 登录状态已过期，请重新登录。' }); return }
         if (!requireCsrf(request, response, session)) return
         try {
-          json(response, 200, await syncOwnedGames(db, config, session, fetcher))
+          json(response, 200, await syncOwnedGames(db, config, session, steamFetcher))
         } catch (error) {
-          if (error instanceof SafeHttpError) json(response, error.status, { error: error.message })
+          if (error instanceof SafeHttpError) json(response, error.status, {
+            error: error.message,
+            category: error.category,
+            failureCode: error.failureCode,
+            ...(error.systemErrorCode ? { systemErrorCode: error.systemErrorCode } : {}),
+          })
           else json(response, 500, { error: 'Steam 同步结果未能保存；已有档案已保留，请稍后重试。' })
         }
         return
@@ -545,6 +707,7 @@ export function createSteamFilmServer(options: { config: SteamFilmConfig; db?: D
   server.headersTimeout = 10_000
   server.requestTimeout = 20_000
   server.maxHeadersCount = 50
+  server.once('close', () => { void steamHttpClient?.close() })
   return { server, db }
 }
 

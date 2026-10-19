@@ -11,12 +11,17 @@
     "dev:steam-film": "node --env-file=.env --experimental-strip-types --watch server/index.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types server/steam-film.test.ts"
+    "test": "node --experimental-strip-types server/steam-film.test.ts && node --experimental-strip-types server/steam-film-static.test.ts",
+    "steam:sync": "node --env-file-if-exists=.env.steam-film.local --experimental-strip-types server/steam-film-cli.ts sync",
+    "steam:export": "node --env-file-if-exists=.env.steam-film.local --experimental-strip-types server/steam-film-cli.ts export",
+    "steam:update": "node --env-file-if-exists=.env.steam-film.local --experimental-strip-types server/steam-film-cli.ts update",
+    "steam:network-check": "node --env-file-if-exists=.env.steam-film.local --experimental-strip-types server/steam-film-cli.ts network-check"
   },
   "dependencies": {
     "lucide-react": "0.468.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "undici": "6.22.0"
   },
   "devDependencies": {
     "@types/react": "19.3.0",

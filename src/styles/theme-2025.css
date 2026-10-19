@@ -620,3 +620,113 @@
   .ceremony-page--2025 .winner-gallery--count-2 .gallery-image--2,
   .ceremony-page--2025.layout-minimal .winner-gallery--count-2.winner-gallery--minimal .gallery-image--2 { grid-column: 1 / -1; grid-row: 2; }
 }
+
+/* Keep full screenshots legible and give four-image galleries explicit tracks. */
+.ceremony-page--2025 .guest-art img {
+  object-fit: contain;
+  object-position: center;
+}
+
+.ceremony-page--2025 .winner-gallery--count-4 {
+  grid-template:
+    "primary supporting-top" minmax(0, 1fr)
+    "supporting-bottom supporting-fourth" minmax(0, 1fr)
+    / minmax(0, 1fr) minmax(0, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+}
+.ceremony-page--2025 .winner-gallery--count-4 .gallery-image--1 { grid-area: primary; }
+.ceremony-page--2025 .winner-gallery--count-4 .gallery-image--2 { grid-area: supporting-top; }
+.ceremony-page--2025 .winner-gallery--count-4 .gallery-image--3 { grid-area: supporting-bottom; }
+.ceremony-page--2025 .winner-gallery--count-4 .gallery-image--4 { grid-area: supporting-fourth; }
+@media (min-width: 1201px) {
+  .ceremony-page--2025 .winner-gallery--count-4.winner-gallery--hero {
+    grid-template:
+      "primary supporting-top" minmax(0, 1fr)
+      "primary supporting-middle" minmax(0, 1fr)
+      "primary supporting-bottom" minmax(0, 1fr)
+      / minmax(0, 1.65fr) minmax(0, 1fr);
+  }
+  .ceremony-page--2025 .winner-gallery--count-4.winner-gallery--hero .gallery-image--3 { grid-area: supporting-middle; }
+  .ceremony-page--2025 .winner-gallery--count-4.winner-gallery--hero .gallery-image--4 { grid-area: supporting-bottom; }
+}
+
+@media (min-width: 1201px) {
+  .ceremony-page--2025 .award-content {
+    column-gap: clamp(18px, 2.4vw, 34px);
+    row-gap: clamp(10px, 1.6vh, 18px);
+  }
+
+  /* These compositions keep their review below the art; the art uses the full first row. */
+  .ceremony-page--2025 .layout-split .award-content,
+  .ceremony-page--2025 .layout-gallery .award-content,
+  .ceremony-page--2025 .layout-chaos .award-content,
+  .ceremony-page--2025 .layout-reveal .award-content {
+    grid-template-areas: "story art" "quote quote";
+  }
+
+  /* A restrained side-by-side print pair for art and music pages. */
+  .ceremony-page--2025 .winner-gallery--count-4.winner-gallery--image,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal,
+  .ceremony-page--2025 .winner-gallery--count-4.winner-gallery--time {
+    grid-template:
+      "primary supporting-top" minmax(0, 1fr)
+      "supporting-bottom supporting-fourth" minmax(0, 1fr)
+      / minmax(0, 1.12fr) minmax(0, .88fr);
+  }
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--1,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--2,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--3,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--4 {
+    grid-area: auto;
+  }
+
+  /* The indie-game page reads as one large frame followed by three travel notes. */
+  .ceremony-page--2025 .winner-gallery--count-4.winner-gallery--gallery {
+    grid-template:
+      "primary primary primary" minmax(0, 1.3fr)
+      "supporting-top supporting-bottom supporting-fourth" minmax(0, .9fr)
+      / minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1200px) {
+  .ceremony-page--2025 .winner-gallery--count-4 {
+    grid-template:
+      "primary supporting-top" minmax(0, 1fr)
+      "supporting-bottom supporting-fourth" minmax(0, 1fr)
+      / minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal {
+    grid-template:
+      "primary supporting-top" minmax(0, 1fr)
+      "supporting-bottom supporting-fourth" minmax(0, 1fr)
+      / minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--1,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--2,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--3,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--4 {
+    grid-area: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .ceremony-page--2025 .winner-gallery--count-4 {
+    grid-template:
+      "primary supporting-top" minmax(0, 1fr)
+      "supporting-bottom supporting-fourth" minmax(0, 1fr)
+      / minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal {
+    grid-template:
+      "primary supporting-top" minmax(0, 1fr)
+      "supporting-bottom supporting-fourth" minmax(0, 1fr)
+      / minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--1,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--2,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--3,
+  .ceremony-page--2025 .layout-minimal .winner-gallery--count-4.winner-gallery--minimal .gallery-image--4 {
+    grid-area: auto;
+  }
+}

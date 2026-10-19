@@ -353,17 +353,18 @@ test('write endpoints reject missing or invalid CSRF tokens even for a valid ses
   assert.equal(fetchCalled, false)
 })
 
-test('Steam API timeout, error, invalid JSON, and malformed records preserve the old archive', async () => {
-  const failures: Array<{ label: string; fetcher: typeof fetch; status: number }> = [
-    { label: 'timeout', fetcher: async () => { throw new DOMException('simulated timeout', 'TimeoutError') }, status: 502 },
-    { label: 'HTTP error', fetcher: async () => new Response('key=private-api-key-value', { status: 503 }), status: 502 },
-    { label: 'invalid JSON', fetcher: async () => new Response('{not-json', { status: 200 }), status: 502 },
-    { label: 'missing games array', fetcher: async () => Response.json({ response: {} }), status: 422 },
-    { label: 'null response body', fetcher: async () => Response.json(null), status: 422 },
-    { label: 'null game row', fetcher: async () => Response.json({ response: { games: [null] } }), status: 422 },
-    { label: 'invalid playtime', fetcher: async () => Response.json({ response: { games: [{ appid: 620, name: 'Portal 2', playtime_forever: -4 }] } }), status: 422 },
-    { label: 'invalid playtime type', fetcher: async () => Response.json({ response: { games: [{ appid: 620, name: 'Portal 2', playtime_forever: '25' }] } }), status: 422 },
-    { label: 'duplicate app id', fetcher: async () => Response.json({ response: { games: [{ appid: 620, name: 'Portal 2' }, { appid: 620, name: 'Portal 2 copy' }] } }), status: 422 },
+test('Steam API failures receive stage-specific categories and preserve the old archive', async () => {
+  const failures: Array<{ label: string; fetcher: typeof fetch; status: number; category: string }> = [
+    { label: 'timeout', fetcher: async () => { throw new DOMException('simulated timeout', 'TimeoutError') }, status: 502, category: 'steam-network-error' },
+    { label: 'HTTP error', fetcher: async () => new Response('key=private-api-key-value', { status: 503 }), status: 502, category: 'steam-http-error' },
+    { label: 'API rejection', fetcher: async () => new Response('private response body', { status: 403 }), status: 502, category: 'steam-api-rejected' },
+    { label: 'invalid JSON', fetcher: async () => new Response('{not-json', { status: 200 }), status: 502, category: 'steam-response-invalid' },
+    { label: 'missing games array', fetcher: async () => Response.json({ response: {} }), status: 422, category: 'steam-response-invalid' },
+    { label: 'null response body', fetcher: async () => Response.json(null), status: 422, category: 'steam-response-invalid' },
+    { label: 'null game row', fetcher: async () => Response.json({ response: { games: [null] } }), status: 422, category: 'steam-data-invalid' },
+    { label: 'invalid playtime', fetcher: async () => Response.json({ response: { games: [{ appid: 620, name: 'Portal 2', playtime_forever: -4 }] } }), status: 422, category: 'steam-data-invalid' },
+    { label: 'invalid playtime type', fetcher: async () => Response.json({ response: { games: [{ appid: 620, name: 'Portal 2', playtime_forever: '25' }] } }), status: 422, category: 'steam-data-invalid' },
+    { label: 'duplicate app id', fetcher: async () => Response.json({ response: { games: [{ appid: 620, name: 'Portal 2' }, { appid: 620, name: 'Portal 2 copy' }] } }), status: 422, category: 'steam-data-invalid' },
   ]
 
   for (const failure of failures) {
@@ -378,6 +379,10 @@ test('Steam API timeout, error, invalid JSON, and malformed records preserve the
     const body = await response.text()
     assert.equal(body.includes('private-api-key-value'), false, failure.label)
     assert.equal(body.includes('simulated timeout'), false, failure.label)
+    assert.equal(JSON.parse(body).category, failure.category, failure.label)
+    const batch = db.prepare('SELECT status, error_code AS errorCode FROM sync_batches').get() as { status: string; errorCode: string }
+    assert.equal(batch.status, 'failed', failure.label)
+    assert.equal(batch.errorCode.split(':')[0], failure.category, failure.label)
     const game = db.prepare('SELECT name, playtime_minutes AS playtimeMinutes, playtime_recent_minutes AS recent FROM steam_games WHERE steam_app_id = 620').get() as { name: string; playtimeMinutes: number; recent: number }
     assert.deepEqual({ ...game }, { name: 'Portal 2', playtimeMinutes: 1250, recent: 37 }, failure.label)
     assert.equal(db.prepare('SELECT value FROM archive_meta WHERE key = ?').get('last_synced_at')?.value, '2025-12-02T12:00:00.000Z', failure.label)
@@ -437,6 +442,8 @@ test('a SQLite write error rolls back the whole sync and hides internal diagnost
   assert.equal(response.status, 500)
   const body = await response.text()
   assert.equal(body.includes('private sqlite diagnostic'), false)
+  assert.equal(JSON.parse(body).category, 'database-write-failed')
+  assert.match((db.prepare('SELECT error_code AS errorCode FROM sync_batches').get() as { errorCode: string }).errorCode, /^database-write-failed(?::[A-Z0-9_]+)?$/)
   assert.equal((db.prepare('SELECT COUNT(*) AS count FROM steam_games').get() as { count: number }).count, 1)
   assert.equal(db.prepare('SELECT value FROM archive_meta WHERE key = ?').get('last_synced_at')?.value, '2025-12-02T12:00:00.000Z')
 })

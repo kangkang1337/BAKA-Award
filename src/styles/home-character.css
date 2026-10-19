@@ -34,7 +34,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .hero-character figcaption {
@@ -79,7 +79,7 @@
 @media (max-width: 640px) {
   .hero-character {
     top: auto;
-    right: -1%;
+    right: 0;
     bottom: 12%;
     height: 43%;
     max-height: 330px;
@@ -92,6 +92,10 @@
   .hero-character:before,
   .hero-character figcaption,
   .hero-character__index { display: none; }
+}
+
+@media (max-width: 360px) {
+  .home-hero .hero-copy h1 { font-size: clamp(66px, 23vw, 74px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

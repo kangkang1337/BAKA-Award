@@ -266,7 +266,11 @@
 }
 
 @media (max-width: 640px) {
-  .ceremony-page--2026 .award-visual { height: clamp(205px, 29svh, 270px); }
+  .ceremony-page--2026 .award-content { flex: 0 0 auto; }
+  .ceremony-page--2026 .award-visual {
+    height: clamp(205px, 29svh, 270px);
+    flex: 0 0 auto;
+  }
   .ceremony-page--2026 .judge-note__portrait { width: 27px; height: 34px; }
   .ceremony-page--2026 .winner-gallery { padding: 5px; gap: 4px; }
   .ceremony-page--2026 .winner-gallery--gameplay,
@@ -275,7 +279,15 @@
   .ceremony-page--2026 .winner-gallery--touhou-intro {
     grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
   }
+  .ceremony-page--2026 .winner-gallery--gameplay {
+    grid-template: minmax(0, 1.15fr) minmax(0, .85fr) / minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "lead lead" "side-a side-b";
+  }
   .ceremony-page--2026 .winner-gallery--art { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); }
+  .ceremony-page--2026 .winner-gallery--art {
+    grid-template: minmax(0, 1fr) minmax(0, .86fr) / minmax(0, 1fr);
+    grid-template-areas: "poster" "scene";
+  }
   .ceremony-page--2026 .winner-gallery--music { grid-template-rows: 1fr 1fr; }
   .ceremony-page--2026 .winner-gallery--performance { grid-template-rows: 1fr .78fr; }
   .ceremony-page--2026 .winner-gallery--guide { grid-template-rows: repeat(3, minmax(0, 1fr)); }
@@ -283,7 +295,25 @@
   .ceremony-page--2026 .winner-gallery--elder { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .ceremony-page--2026 .winner-gallery--most-loss,
   .ceremony-page--2026 .winner-gallery--goty { grid-template-rows: minmax(0, 1.2fr) minmax(0, .8fr); }
+  .ceremony-page--2026 .winner-gallery--most-loss {
+    grid-template: minmax(0, 1.15fr) minmax(0, .85fr) / minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "receipt receipt" "record-a record-b";
+  }
   .ceremony-page--2026 .winner-gallery--more-than-game { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+  .ceremony-page--2026 .winner-gallery--indie,
+  .ceremony-page--2026 .winner-gallery--one-more-turn {
+    grid-template: minmax(0, 1fr) minmax(0, 1fr) / minmax(0, 1fr);
+  }
+  .ceremony-page--2026 .winner-gallery--indie { grid-template-areas: "play" "detail"; }
+  .ceremony-page--2026 .winner-gallery--one-more-turn { grid-template-areas: "track-a" "track-b"; }
+  .ceremony-page--2026 .winner-gallery--surprise,
+  .ceremony-page--2026 .winner-gallery--touhou-intro,
+  .ceremony-page--2026 .winner-gallery--more-than-game {
+    grid-template: minmax(0, 1.15fr) minmax(0, .85fr) / minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .ceremony-page--2026 .winner-gallery--surprise { grid-template-areas: "discovery discovery" "note-a note-b"; }
+  .ceremony-page--2026 .winner-gallery--touhou-intro { grid-template-areas: "portrait portrait" "awakening spell"; }
+  .ceremony-page--2026 .winner-gallery--more-than-game { grid-template-areas: "journey journey" "world-a world-b"; }
   .ceremony-page--2026 .winner-gallery--goty {
     grid-template: minmax(0, 1.2fr) minmax(0, .8fr) / 1fr 1fr;
     grid-template-areas: "final-vista final-vista" "memory-a memory-b";
@@ -300,9 +330,18 @@
     grid-template: repeat(3, minmax(0, 1fr)) / minmax(0, 1fr);
     grid-template-areas: "vista-a" "vista-b" "vista-c";
   }
-  .ceremony-page--2026 .award-elder .award-visual { height: clamp(270px, 34svh, 310px); }
-  .ceremony-page--2026 .winner-gallery--suika-pick { grid-template-rows: minmax(0, 1.3fr) minmax(0, .7fr); }
-  .ceremony-page--2026 .layout-special .award-visual { height: clamp(220px, 32svh, 270px); }
+  .ceremony-page--2026 .award-guide .award-visual,
+  .ceremony-page--2026 .award-elder .award-visual {
+    height: clamp(320px, 42svh, 350px);
+  }
+  .ceremony-page--2026 .winner-gallery--suika-pick {
+    grid-template: minmax(0, 1fr) minmax(0, 1fr) / minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "toast memory-a" "memory-b memory-c";
+  }
+  .ceremony-page--2026 .layout-special .award-visual {
+    height: clamp(220px, 32svh, 270px);
+    flex-basis: clamp(220px, 32svh, 270px);
+  }
 }
 
 /* Give each editorial slot enough specificity to override the legacy first-image span. */

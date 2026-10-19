@@ -1,61 +1,47 @@
 # BAKA AWARD
 
-BAKA AWARD 是一个独立的个人年度游戏颁奖典礼网站，不代表任何媒体、组织或行业机构。网站以年度档案的形式记录游戏、嘉宾与个人回忆。
+BAKA AWARD 是个人游戏年度颁奖与回顾网站，不代表任何媒体、组织或行业机构。网站使用 React、TypeScript 和 Vite 构建，可发布为静态站点。
 
 线上网站：[bakaaward.com](https://bakaaward.com)
 
-## 技术栈
+## 本地开发
 
-React、TypeScript、Vite。年度典礼仍构建为静态网站；Steam Film Archive 使用单独的 Node.js + SQLite 服务保存私有档案，不与静态页面或其他站点服务共用数据库。
-
-## 本地运行
-
-需要 Node.js `20.19+` 或 `22.12+`，以及 npm。
+需要 Node.js `20.19+` 或 `22.12+`。
 
 ```bash
 npm ci
 npm run dev
 ```
 
-生成生产文件并本地预览：
+构建和预览：
 
 ```bash
 npm run build
 npm run preview
 ```
 
-构建结果位于 `dist/`，可发布到任意静态网站托管服务。
+## Steam Film Archive
 
-Steam Film Archive 的本地预览和独立服务配置见[档案说明](docs/steam-film-archive.md)。未配置服务时，附页会清楚显示交互样例；样例不代表真实 Steam 游戏库。
+页面读取 `public/data/steam-film/` 中的静态 JSON。Steam 同步和历史快照在本机运行，不需要网站后端常驻，也不会由网页直接连接 Steam。配置与更新方法见[Steam Film Archive 指南](docs/steam-film-archive.md)。
+
+生成的数据文件面向访客公开。每次发布前请检查 JSON 中的游戏资料，并确认愿意公开；本地 SQLite 数据库和 API Key 不应上传。
 
 ## 项目结构
 
 ```text
-src/
-├── components/   # 共用界面组件
-├── data/          # 各年度奖项与典礼内容
-├── layouts/       # 页面与奖项布局
-├── pages/         # 首页、典礼页面
-├── styles/        # 通用样式和年度视觉样式
-├── themes/        # 年度主题配置
-└── types.ts       # 数据类型
-server/            # Steam Film 独立后端
-docs/              # 部署和 Steam Film 说明
-public/images/     # 本地图片资源
+src/                 React 页面、组件、年度内容与样式
+server/              Steam Film 本地同步、SQLite 快照与导出工具
+public/data/          静态网站读取的数据文件
+public/images/       本地图片资源（由 .gitignore 排除）
+docs/                开发、Steam Film 与部署说明
 ```
 
-年度内容编辑入口为 `src/data/2025.ts` 和 `src/data/2026.ts`。图片添加说明：
-
-- [2025 图片说明](public/images/2025/README.md)
-- [2026 图片说明](public/images/2026/README.md)
-- [品牌图片说明](public/images/branding/README.md)
-
-图片文件由 `.gitignore` 排除，不会随代码上传到 GitHub。克隆项目后，如需还原完整画面，请自行添加拥有使用权的图片。
+年度内容位于 `src/data/`。图片文件不包含在 Git 仓库中；添加方式见各年度图片目录中的 README。
 
 ## 部署
 
-构建后将 `dist/` 内容发布到静态 Web 服务器，并配置客户端路由回退到 `index.html`。Ubuntu + Nginx 部署步骤见[部署指南](docs/deployment.md)。Steam Film 后端使用独立服务、端口和私有数据目录，配置步骤见[Steam Film 说明](docs/steam-film-archive.md)。
+构建 `dist/` 并将其内容发布到静态网站托管服务。Nginx 部署步骤见[部署指南](docs/deployment.md)。Steam Film 的 JSON 应与网站构建内容一起发布。
 
 ## 许可
 
-项目目前没有附带开源许可证。公开仓库本身不授予他人复制、修改或再发布代码的许可；图片素材也不包含在仓库中，其使用权需由使用者自行确认。
+项目目前没有附带开源许可证。公开仓库本身不授予复制、修改或再发布代码的许可；图片素材的使用权需由使用者自行确认。

@@ -202,6 +202,17 @@
   .ceremony-page .guest-card--compact { grid-template-columns: 112px minmax(0, 1fr); }
 }
 
+@media (max-width: 640px) {
+  .ceremony-page .award-stage__main {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 320px) {
+  body { min-width: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .image-fade { transition: none; }
 }

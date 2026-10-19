@@ -10,15 +10,16 @@ export interface SteamFilmGame {
   playtimeRecentMinutes: number | null
   achievementCount: number | null
   achievementTotal: number | null
-  personalNote: string | null
-  dataSource: string
+  personalNote?: string | null
+  dataSource?: string
 }
 
-export interface SteamFilmStatus {
-  loginAvailable: boolean
-  syncAvailable: boolean
-  authenticated: boolean
-  csrfToken?: string
-  lastSyncedAt: string | null
-  gameCount?: number
+export interface SteamFilmArchiveData {
+  format: 'baka-steam-film-archive'
+  schemaVersion: 1
+  generatedAt: string | null
+  lastSuccessfulSyncAt: string | null
+  gameCount: number
+  dataStatus: 'ready' | 'empty'
+  games: SteamFilmGame[]
 }
