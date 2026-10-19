@@ -11,6 +11,7 @@ import './styles/home-character.css'
 import './styles/mobile-ex-archive-link.css'
 import './styles/responsive-ceremony.css'
 import './styles/award-compositions-2026.css'
+import './styles/steam-film-home-link.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode><App /></React.StrictMode>,

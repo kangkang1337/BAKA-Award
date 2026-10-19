@@ -6,7 +6,7 @@ BAKA AWARD 是一个独立的个人年度游戏颁奖典礼网站，不代表任
 
 ## 技术栈
 
-React、TypeScript、Vite。项目构建为静态网站，不需要数据库或后端服务。
+React、TypeScript、Vite。年度典礼仍构建为静态网站；Steam Film Archive 使用单独的 Node.js + SQLite 服务保存私有档案，不与静态页面或其他站点服务共用数据库。
 
 ## 本地运行
 
@@ -26,6 +26,8 @@ npm run preview
 
 构建结果位于 `dist/`，可发布到任意静态网站托管服务。
 
+Steam Film Archive 的本地预览和独立服务配置见[档案说明](docs/steam-film-archive.md)。未配置服务时，附页会清楚显示交互样例；样例不代表真实 Steam 游戏库。
+
 ## 项目结构
 
 ```text
@@ -37,6 +39,8 @@ src/
 ├── styles/        # 通用样式和年度视觉样式
 ├── themes/        # 年度主题配置
 └── types.ts       # 数据类型
+server/            # Steam Film 独立后端
+docs/              # 部署和 Steam Film 说明
 public/images/     # 本地图片资源
 ```
 
@@ -50,7 +54,7 @@ public/images/     # 本地图片资源
 
 ## 部署
 
-构建后将 `dist/` 内容发布到静态 Web 服务器，并配置客户端路由回退到 `index.html`。Ubuntu + Nginx 部署步骤见[部署指南](docs/deployment.md)。
+构建后将 `dist/` 内容发布到静态 Web 服务器，并配置客户端路由回退到 `index.html`。Ubuntu + Nginx 部署步骤见[部署指南](docs/deployment.md)。Steam Film 后端使用独立服务、端口和私有数据目录，配置步骤见[Steam Film 说明](docs/steam-film-archive.md)。
 
 ## 许可
 

@@ -1,12 +1,12 @@
-import { ArrowDown, ArrowUpRight, MoveRight } from 'lucide-react'
+import { ArrowDown, ArrowUpRight, Film, MoveRight } from 'lucide-react'
 import { Brand } from '../components/Brand'
 
-export function Home({ openCeremony, openMobileEx }: { openCeremony: (year: number) => void; openMobileEx: () => void }) {
+export function Home({ openCeremony, openMobileEx, openSteamFilm }: { openCeremony: (year: number) => void; openMobileEx: () => void; openSteamFilm: () => void }) {
   return <main className="home-page">
     <nav className="topbar"><Brand/><span className="topbar-note"><span className="live-dot"/> INDEPENDENT · PERSONAL · ANNUAL</span><a className="topbar-link" href="#archive">ABOUT THE ARCHIVE <ArrowUpRight size={14}/></a></nav>
     <section className="home-hero">
       <div className="hero-grid" aria-hidden="true"/><div className="hero-vertical">PERSONAL GAME AWARDS / EST. 2025</div>
-      <div className="hero-copy"><div className="eyebrow"><span className="live-dot"/> AN ANNUAL ARCHIVE OF PLAY</div><h1>BAKA<br/><span>AWARD</span><sup>®</sup></h1><div className="hero-bottom"><p>一个人玩了一整年游戏之后，<br/>认真给自己办的一场颁奖典礼。</p><span className="hero-index">01 — ∞</span></div></div>
+      <div className="hero-copy"><div className="eyebrow"><span className="live-dot"/> AN ANNUAL ARCHIVE OF PLAY</div><h1>BAKA<br/><span>AWARD</span><sup>®</sup></h1><div className="hero-bottom"><p>一个人玩了一整年游戏之后，<br/>认真给自己办的一场颁奖典礼。</p><span className="hero-index">01 — ∞</span></div><a className="steam-film-home-link" href="/steam-film" onClick={event => { event.preventDefault(); openSteamFilm() }}><span className="steam-film-home-link__icon"><Film size={15}/></span><span><b>STEAM FILM ARCHIVE</b><small>Every game leaves a frame.</small></span><MoveRight size={16}/></a></div>
       <figure className="hero-character" aria-label="琪露诺插画主视觉">
         <div className="hero-character__art"><img src="/images/branding/home-character.png" alt="琪露诺站在冰晶之间" fetchPriority="high"/></div>
         <figcaption><span>BAKA AWARD / 2026</span><span>YEAR IN PLAY</span></figcaption>
