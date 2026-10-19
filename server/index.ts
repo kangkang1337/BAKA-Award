@@ -33,6 +33,15 @@ interface SteamGameApiItem {
   rtime_last_played?: unknown
 }
 
+class SafeHttpError extends Error {
+  readonly status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
 function cleanOrigin(value: string | undefined) {
   if (!value) return null
   const url = new URL(value)
@@ -149,7 +158,18 @@ function cookies(request: IncomingMessage) {
   for (const part of (request.headers.cookie || '').split(';')) {
     const separator = part.indexOf('=')
     if (separator < 0) continue
-    result.set(part.slice(0, separator).trim(), decodeURIComponent(part.slice(separator + 1).trim()))
+    const name = part.slice(0, separator).trim()
+    const value = part.slice(separator + 1).trim()
+    if (!name) continue
+    if (result.has(name)) {
+      result.set(name, '')
+      continue
+    }
+    try {
+      result.set(name, decodeURIComponent(value))
+    } catch {
+      result.set(name, '')
+    }
   }
   return result
 }
@@ -179,7 +199,7 @@ function redirect(response: ServerResponse, location: string) {
 function getSession(request: IncomingMessage, db: DatabaseSync, config: SteamFilmConfig) {
   if (!config.sessionSecret) return null
   const sessionId = cookies(request).get(SESSION_COOKIE)
-  if (!sessionId || sessionId.length > 128) return null
+  if (!sessionId || !/^[A-Za-z0-9_-]{43}$/.test(sessionId)) return null
   const session = db.prepare('SELECT steam_id AS steamId, expires_at AS expiresAt FROM sessions WHERE session_hash = ?').get(tokenHash(sessionId, config.sessionSecret)) as { steamId: string; expiresAt: number } | undefined
   if (!session || session.expiresAt <= Date.now() || session.steamId !== config.ownerId || getMeta(db, 'owner_steam_id') !== session.steamId) return null
   return { sessionId, steamId: session.steamId, csrfToken: csrfForSession(sessionId, config.sessionSecret) }
@@ -252,9 +272,17 @@ function getMeta(db: DatabaseSync, key: string) {
 }
 
 async function steamOpenIdCallback(requestUrl: URL, request: IncomingMessage, response: ServerResponse, db: DatabaseSync, config: SteamFilmConfig, fetcher: typeof fetch) {
+  const seenParams = new Set<string>()
+  for (const key of requestUrl.searchParams.keys()) {
+    if (seenParams.has(key)) {
+      json(response, 400, { error: 'Steam 登录回调包含重复参数，请重新登录。' })
+      return
+    }
+    seenParams.add(key)
+  }
   const state = requestUrl.searchParams.get('state') || ''
   const nonceCookie = cookies(request).get(NONCE_COOKIE) || ''
-  if (!config.publicOrigin || !config.ownerId || !config.sessionSecret || !state || !nonceCookie || !constantTimeEqual(state, nonceCookie)) {
+  if (!config.publicOrigin || !config.ownerId || !config.sessionSecret || !/^[A-Za-z0-9_-]{43}$/.test(state) || !nonceCookie || !constantTimeEqual(state, nonceCookie)) {
     json(response, 400, { error: 'Steam 登录验证已失效，请重新开始。' })
     return
   }
@@ -279,6 +307,7 @@ async function steamOpenIdCallback(requestUrl: URL, request: IncomingMessage, re
     requestUrl.searchParams.get('openid.op_endpoint') !== OPENID_ENDPOINT ||
     requestUrl.searchParams.get('openid.return_to') !== callback.href ||
     identity !== claimedId || !steamIdMatch || steamIdMatch[1] !== config.ownerId ||
+    signed.some(key => !key) || new Set(signed).size !== signed.length ||
     !['claimed_id', 'identity', 'return_to', 'op_endpoint', 'response_nonce'].every(key => signed.includes(key)) ||
     !requestUrl.searchParams.get('openid.sig')
   ) {
@@ -300,7 +329,8 @@ async function steamOpenIdCallback(requestUrl: URL, request: IncomingMessage, re
       signal: AbortSignal.timeout(10_000),
     })
     const verificationBody = await verification.text()
-    valid = verification.ok && /^is_valid:true\s*$/m.test(verificationBody)
+    const validityFields = verificationBody.split(/\r?\n/).filter(line => line.startsWith('is_valid:'))
+    valid = verification.ok && validityFields.length === 1 && validityFields[0] === 'is_valid:true'
   } catch {
     valid = false
   }
@@ -309,17 +339,24 @@ async function steamOpenIdCallback(requestUrl: URL, request: IncomingMessage, re
     return
   }
 
-  const databaseOwner = getMeta(db, 'owner_steam_id')
-  if (databaseOwner && databaseOwner !== config.ownerId) {
-    json(response, 409, { error: '此档案数据库已绑定另一 Steam 账号。请检查服务器的 STEAM_OWNER_ID 配置。' })
-    return
-  }
-  setMeta(db, 'owner_steam_id', config.ownerId)
-
   const sessionId = randomBytes(32).toString('base64url')
   const expiresAt = Date.now() + SESSION_TTL_SECONDS * 1000
-  db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(Date.now())
-  db.prepare('INSERT INTO sessions(session_hash, steam_id, expires_at) VALUES(?, ?, ?)').run(tokenHash(sessionId, config.sessionSecret), config.ownerId, expiresAt)
+  db.exec('BEGIN IMMEDIATE')
+  try {
+    const databaseOwner = getMeta(db, 'owner_steam_id')
+    if (databaseOwner && databaseOwner !== config.ownerId) {
+      db.exec('ROLLBACK')
+      json(response, 409, { error: '此档案数据库已绑定另一 Steam 账号。请检查服务器的 STEAM_OWNER_ID 配置。' })
+      return
+    }
+    setMeta(db, 'owner_steam_id', config.ownerId)
+    db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(Date.now())
+    db.prepare('INSERT INTO sessions(session_hash, steam_id, expires_at) VALUES(?, ?, ?)').run(tokenHash(sessionId, config.sessionSecret), config.ownerId, expiresAt)
+    db.exec('COMMIT')
+  } catch (error) {
+    db.exec('ROLLBACK')
+    throw error
+  }
   response.setHeader('Set-Cookie', [
     cookieHeader(SESSION_COOKIE, sessionId, config, { maxAge: SESSION_TTL_SECONDS, path: '/api/steam-film' }),
     cookieHeader(NONCE_COOKIE, '', config, { maxAge: 0, path: '/api/steam-film/callback' }),
@@ -328,11 +365,11 @@ async function steamOpenIdCallback(requestUrl: URL, request: IncomingMessage, re
 }
 
 async function syncOwnedGames(db: DatabaseSync, config: SteamFilmConfig, session: { steamId: string }, fetcher: typeof fetch) {
-  if (!config.apiKey) throw Object.assign(new Error('Steam Web API Key 尚未配置。'), { status: 503 })
+  if (!config.apiKey) throw new SafeHttpError('Steam Web API Key 尚未配置。', 503)
   const startedAt = Date.now()
   const lastStartedAt = Number(getMeta(db, 'last_sync_started_at') || 0)
   if (lastStartedAt && startedAt - lastStartedAt < SYNC_COOLDOWN_MS) {
-    throw Object.assign(new Error('刚刚已经同步过，请稍等一分钟再试。'), { status: 429 })
+    throw new SafeHttpError('刚刚已经同步过，请稍等一分钟再试。', 429)
   }
   setMeta(db, 'last_sync_started_at', String(startedAt))
 
@@ -346,20 +383,41 @@ async function syncOwnedGames(db: DatabaseSync, config: SteamFilmConfig, session
   let payload: { response?: { games?: SteamGameApiItem[] } }
   try {
     const result = await fetcher(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(15_000) })
-    if (!result.ok) throw new Error('Steam response was not successful')
+    if (result.status === 429) throw new SafeHttpError('Steam API 请求过于频繁，请稍后再同步。', 429)
+    if (!result.ok) throw new SafeHttpError('Steam API 暂时无法读取游戏库。请检查账号隐私设置和服务器 API Key。', 502)
     payload = await result.json() as { response?: { games?: SteamGameApiItem[] } }
-  } catch {
-    throw Object.assign(new Error('无法读取 Steam 游戏库。请确认游戏详情为公开，并检查服务器端 Steam API Key。'), { status: 502 })
+  } catch (error) {
+    if (error instanceof SafeHttpError) throw error
+    throw new SafeHttpError('无法读取 Steam 游戏库。请确认游戏详情为公开，并检查服务器端 Steam API Key。', 502)
   }
 
-  if (!Array.isArray(payload.response?.games)) {
-    throw Object.assign(new Error('Steam 没有返回可读取的游戏库。请确认账号的游戏详情为公开。'), { status: 422 })
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload) || !Array.isArray(payload.response?.games)) {
+    throw new SafeHttpError('Steam 没有返回可读取的游戏库。请确认账号的游戏详情为公开。', 422)
   }
   if (payload.response.games.length > MAX_OWNED_GAMES) {
-    throw Object.assign(new Error('游戏记录超过单次同步上限，请联系站点维护者。'), { status: 422 })
+    throw new SafeHttpError('游戏记录超过单次同步上限，请联系站点维护者。', 422)
   }
 
-  const now = new Date(startedAt).toISOString()
+  const seenAppIds = new Set<number>()
+  for (const game of payload.response.games) {
+    if (!game || typeof game !== 'object' || Array.isArray(game)) {
+      throw new SafeHttpError('Steam 返回了格式异常的游戏记录；已有档案未更改。', 422)
+    }
+    const name = typeof game.name === 'string' ? game.name.trim() : ''
+    if (typeof game.appid !== 'number' || !Number.isSafeInteger(game.appid) || game.appid <= 0 || !name) {
+      throw new SafeHttpError('Steam 返回了不完整的游戏记录；已有档案未更改。', 422)
+    }
+    if (seenAppIds.has(game.appid)) throw new SafeHttpError('Steam 返回了重复游戏记录；已有档案未更改。', 422)
+    seenAppIds.add(game.appid)
+    for (const field of ['playtime_forever', 'playtime_2weeks', 'rtime_last_played'] as const) {
+      const value = game[field]
+      if (value !== undefined && value !== null && (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0)) {
+        throw new SafeHttpError('Steam 返回了格式异常的游玩记录；已有档案未更改。', 422)
+      }
+    }
+  }
+
+  const now = new Date().toISOString()
   db.exec('BEGIN IMMEDIATE')
   try {
     const upsert = db.prepare(`
@@ -372,16 +430,15 @@ async function syncOwnedGames(db: DatabaseSync, config: SteamFilmConfig, session
       ON CONFLICT(steam_app_id) DO UPDATE SET
         name = excluded.name,
         header_image = excluded.header_image,
-        last_played_at = excluded.last_played_at,
-        playtime_minutes = excluded.playtime_minutes,
-        playtime_recent_minutes = excluded.playtime_recent_minutes,
+        last_played_at = COALESCE(excluded.last_played_at, steam_games.last_played_at),
+        playtime_minutes = COALESCE(excluded.playtime_minutes, steam_games.playtime_minutes),
+        playtime_recent_minutes = COALESCE(excluded.playtime_recent_minutes, steam_games.playtime_recent_minutes),
         data_source = excluded.data_source,
         updated_at = excluded.updated_at
     `)
     for (const game of payload.response.games) {
       const appId = game.appid
       const name = typeof game.name === 'string' ? game.name.trim().slice(0, 300) : ''
-      if (typeof appId !== 'number' || !Number.isSafeInteger(appId) || appId <= 0 || !name) continue
       const playtime = typeof game.playtime_forever === 'number' && Number.isSafeInteger(game.playtime_forever) && game.playtime_forever >= 0 ? game.playtime_forever : null
       const recent = typeof game.playtime_2weeks === 'number' && Number.isSafeInteger(game.playtime_2weeks) && game.playtime_2weeks >= 0 ? game.playtime_2weeks : null
       const image = `https://cdn.akamai.steamstatic.com/steam/apps/${appId}/header.jpg`
@@ -461,9 +518,8 @@ export function createSteamFilmServer(options: { config: SteamFilmConfig; db?: D
         try {
           json(response, 200, await syncOwnedGames(db, config, session, fetcher))
         } catch (error) {
-          const status = typeof error === 'object' && error && 'status' in error && typeof error.status === 'number' ? error.status : 502
-          const message = error instanceof Error ? error.message : 'Steam 同步失败，请稍后重试。'
-          json(response, status, { error: message })
+          if (error instanceof SafeHttpError) json(response, error.status, { error: error.message })
+          else json(response, 500, { error: 'Steam 同步结果未能保存；已有档案已保留，请稍后重试。' })
         }
         return
       }

@@ -145,14 +145,16 @@ export function SteamFilmArchive({ onHome }: { onHome: () => void }) {
     if (event.pointerType !== 'mouse' || event.button !== 0) return
     pointerStart.current = { x: event.clientX, scrollLeft: event.currentTarget.scrollLeft, pointerId: event.pointerId }
     dragged.current = false
-    event.currentTarget.setPointerCapture(event.pointerId)
   }
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const start = pointerStart.current
     if (!start || start.pointerId !== event.pointerId || !viewportRef.current) return
     const delta = event.clientX - start.x
-    if (Math.abs(delta) > 6) dragged.current = true
+    if (Math.abs(delta) > 6 && !dragged.current) {
+      dragged.current = true
+      event.currentTarget.setPointerCapture(event.pointerId)
+    }
     if (dragged.current) {
       event.preventDefault()
       viewportRef.current.scrollLeft = start.scrollLeft - delta
@@ -220,14 +222,16 @@ export function SteamFilmArchive({ onHome }: { onHome: () => void }) {
       <div className="steam-film-reel__heading">
         <div><span>01 / THE REEL</span><h2>{preview ? '一卷尚未冲洗的样片' : '沿着游玩记录，慢慢经过'}</h2></div>
         <div className="steam-film-reel__controls">
-          <span>{isLoading ? '读取档案…' : preview ? `INTERACTION PREVIEW · ${orderedGames.length} SAMPLE FRAMES` : `PRIVATE COLLECTION · ${orderedGames.length} FRAMES`}</span>
+          <span aria-live="polite">{isLoading ? '读取档案…' : preview ? `INTERACTION PREVIEW · ${orderedGames.length} SAMPLE FRAMES` : `PRIVATE COLLECTION · ${orderedGames.length} FRAMES`}</span>
           <button onClick={() => moveTimeline(-1)} aria-label="胶片向左浏览"><ArrowLeft size={17}/></button>
           <button onClick={() => moveTimeline(1)} aria-label="胶片向右浏览"><ArrowRight size={17}/></button>
         </div>
       </div>
 
       {preview && <div className="steam-film-preview-notice"><Info size={15}/><span>{status === null
-        ? '目前展示的是交互样例，不是你的 Steam 游戏库。'
+        ? isLoading
+          ? '档案服务正在连接；当前画格是交互样例，不是你的 Steam 游戏库。'
+          : '档案服务暂时无法连接；当前画格仍是交互样例，不是你的 Steam 游戏库。'
         : status.loginAvailable
           ? '目前展示的是交互样例，不是你的 Steam 游戏库；未填入虚构的游玩日期、时长或成就。'
           : '目前展示的是交互样例；服务器尚未配置 Steam 登录。'}</span>

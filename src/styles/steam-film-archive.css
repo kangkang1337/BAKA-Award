@@ -192,6 +192,10 @@
   .steam-film-facts { gap: 10px 13px; }
 }
 
+@media (max-width: 320px) {
+  body:has(.steam-film-page) { min-width: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .steam-film-page *, .steam-film-page *:before, .steam-film-page *:after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
