@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="%%CSRF_TOKEN%%" />
+    <meta name="color-scheme" content="dark" />
+    <title>First Play Manager · BAKA AWARD</title>
+    <link rel="stylesheet" href="/manager.css" />
+    <script type="module" src="/manager.js"></script>
+  </head>
+  <body>
+    <main class="manager-shell">
+      <header class="manager-header">
+        <div class="brand"><span>B.</span><b>BAKA AWARD</b><i>/</i><small>FIRST PLAY MANAGER</small></div>
+        <span class="local-badge"><i></i>仅此电脑可访问</span>
+      </header>
+
+      <section class="manager-hero">
+        <div class="eyebrow">PERSONAL GAME HISTORY / LOCAL TOOL</div>
+        <h1>把第一次开始的那天，<em>好好记下来。</em></h1>
+        <p>这里保存你确认过的首次游玩日期。Steam 同步只提供游戏资料，不会替你推测日期。</p>
+        <div class="hero-rule"><span>FIRST PLAY TIMELINE</span><span>PRIVATE DATABASE · STATIC EXPORT</span></div>
+      </section>
+
+      <div id="notice" class="notice" role="status" hidden></div>
+
+      <section class="manager-layout">
+        <div class="manager-main-column">
+          <section class="panel add-panel">
+            <div class="panel-heading"><div><span>01 / ADD</span><h2>记录一次新的开始</h2></div><p>默认日期为今天，可改成更早的日期。</p></div>
+            <form id="entry-form" class="entry-form">
+              <div class="form-grid">
+                <label class="field field-wide">游戏名称<input id="game-name" name="gameName" maxlength="200" required autocomplete="off" placeholder="搜索并选择 Steam 游戏，或直接输入名称" /></label>
+                <label class="field">Steam AppID<input id="app-id" name="steamAppId" inputmode="numeric" pattern="[0-9]*" placeholder="非 Steam 游戏可留空" /></label>
+                <label class="field">首次游玩日期<input id="first-played-on" name="firstPlayedOn" placeholder="YYYY-MM-DD" /></label>
+                <label class="field">日期精度<select id="date-precision" name="datePrecision"><option value="day">精确到日</option><option value="month">精确到月</option><option value="year">精确到年</option><option value="unknown">待确认</option></select></label>
+                <label class="field field-wide">个人评语<textarea id="personal-note" name="personalNote" rows="2" maxlength="4000" placeholder="可以留空；这段文字会随已确认的时间轴记录发布到网站。"></textarea></label>
+              </div>
+              <div class="form-actions"><span>未填写 AppID 时，会使用游戏名称生成稳定的自定义标识。</span><button class="button button-primary" type="submit">加入时间轴</button></div>
+            </form>
+          </section>
+
+          <section class="panel candidate-panel">
+            <div class="panel-heading"><div><span>02 / STEAM LIBRARY</span><h2>从已有游戏中选择</h2></div><p>这里只列出尚未加入时间轴的游戏。</p></div>
+            <div class="search-row"><input id="candidate-search" type="search" placeholder="按名称或 AppID 搜索" /><span id="candidate-count"></span></div>
+            <div id="candidate-list" class="candidate-list" aria-live="polite"></div>
+          </section>
+
+          <section class="panel entries-panel">
+            <div class="panel-heading"><div><span>03 / YOUR RECORDS</span><h2>已确认的时间轴</h2></div><p id="entries-count">读取中…</p></div>
+            <div class="search-row"><input id="entry-search" type="search" placeholder="搜索时间轴中的游戏" /><button id="export-button" class="button button-quiet" type="button">重新生成时间轴 JSON</button></div>
+            <div id="entry-list" class="entry-list" aria-live="polite"></div>
+          </section>
+        </div>
+
+        <aside class="manager-side-column">
+          <section class="panel import-panel">
+            <div class="panel-heading"><div><span>04 / IMPORT</span><h2>导入历史记录</h2></div></div>
+            <p class="panel-copy">选择 CSV 或 JSON。文件会保存到本机 <code>var/imports/heybox-first-play/</code>，先预览匹配与冲突；确认后才写入时间轴。文件里的 <code>source</code> 字段会原样保存（<code>heybox-import</code>、<code>steam-client-get-last-played-times</code> 等），缺省按 <code>heybox-import</code> 处理。</p>
+            <label class="file-picker">选择 CSV / JSON<input id="import-file" type="file" accept=".csv,.json,text/csv,application/json" /></label>
+            <div id="import-summary" class="import-summary" hidden></div>
+            <div id="import-preview" class="import-preview"></div>
+            <button id="confirm-import" class="button button-primary full-width" type="button" hidden>确认所选记录</button>
+          </section>
+
+          <section class="panel backup-panel">
+            <div class="panel-heading"><div><span>05 / BACKUP</span><h2>本地备份</h2></div></div>
+            <p class="panel-copy">备份包含时间轴记录、个人评语与日期来源，不含 Steam API Key 或历史快照。请把下载文件保存在私有位置。</p>
+            <a class="button button-quiet full-width" href="/api/timeline/backup">下载时间轴备份 JSON</a>
+            <div class="private-note"><i></i><span>网站 JSON 只包含你加入时间轴的游戏。评语会公开展示，请不要填写不想公开的内容。</span></div>
+          </section>
+
+          <section class="panel help-panel">
+            <div class="panel-heading"><div><span>06 / TEMPLATE</span><h2>没有历史导出文件？</h2></div></div>
+            <p class="panel-copy">可以先用下方模板整理自己的记录。未知日期留空；不要用成就、最后游玩或网站发现时间代替首次游玩日。</p>
+            <a class="template-link" href="/docs/first-play-timeline-template.csv" download>下载 CSV 模板</a>
+            <a class="template-link" href="/docs/first-play-timeline-template.json" download>下载 JSON 模板</a>
+          </section>
+        </aside>
+      </section>
+
+      <footer class="manager-footer"><span>LOCAL FIRST PLAY MANAGER</span><span>只监听 127.0.0.1 · 关闭终端即可停止</span></footer>
+    </main>
+  </body>
+</html>

@@ -7,7 +7,8 @@ import { afterEach, test } from 'node:test'
 import { createStore, syncOwnedGames, type SteamFilmConfig } from './index.ts'
 import { readLocalSteamFilmConfig } from './steam-film-cli.ts'
 import { buildSteamFilmStaticData, exportSteamFilmStaticData } from './steam-film-static.ts'
-import { isSteamFilmArchive, resolveSteamFilmArchiveUrl } from '../src/data/steam-film-static.ts'
+import { createFirstPlayEntry } from './first-play-timeline.ts'
+import { isFirstPlayTimeline, isSteamFilmArchive, resolveFirstPlayTimelineUrl, resolveSteamFilmArchiveUrl } from '../src/data/steam-film-static.ts'
 import { appHref, appPathFromLocation } from '../src/data/app-path.ts'
 import { ProxyAgent } from 'undici'
 import { checkSteamNetwork, createSteamHttpClient, resolveSteamProxySettings, STEAM_SERVER_INFO_ENDPOINT, SteamOperationError } from './steam-film-http.ts'
@@ -313,6 +314,7 @@ test('time regressions are flagged, absent games remain archived, and missing mi
 test('export is read-only, repeatable, and excludes credentials and private database fields', async () => {
   const db = createStore(new DatabaseSync(':memory:'))
   seedPublicGame(db, { note: 'private diary note', minutes: 130 })
+  createFirstPlayEntry(db, { steamAppId: 620, gameName: 'Portal 2', firstPlayedOn: '2011-02-19', personalNote: 'A confirmed public note.' })
   addBatch(db, 'june-a', '2026-06-10T01:00:00.000Z', [{ appId: 620, minutes: 100 }])
   addBatch(db, 'june-b', '2026-06-11T01:00:00.000Z', [{ appId: 620, minutes: 130 }])
   const output = await mkdtemp(join(tmpdir(), 'baka-steam-film-export-'))
@@ -325,8 +327,10 @@ test('export is read-only, repeatable, and excludes credentials and private data
   const result = await exportSteamFilmStaticData(db, output, generatedAt)
   const archiveText = await readFile(result.archivePath, 'utf8')
   const monthlyText = await readFile(result.monthlyPath, 'utf8')
+  const timelineText = await readFile(result.timelinePath, 'utf8')
   const archive = JSON.parse(archiveText) as Record<string, unknown>
   const monthly = JSON.parse(monthlyText) as { reports: Array<{ month: string; status: string; totalPlaytimeMinutes: number | null }> }
+  const timeline = JSON.parse(timelineText) as { entryCount: number; entries: Array<{ personalNote: string | null }> }
   assert.equal(archive.lastSuccessfulSyncAt, '2026-06-11T01:00:00.000Z')
   assert.equal(archive.generatedAt, generatedAt.toISOString())
   assert.equal(archive.gameCount, 1)
@@ -334,11 +338,17 @@ test('export is read-only, repeatable, and excludes credentials and private data
   assert.equal(archiveText.includes('private source marker'), false)
   assert.equal(archiveText.includes(OWNER_ID), false)
   assert.equal(archiveText.includes(API_KEY), false)
+  assert.equal(timeline.entryCount, 1)
+  assert.equal(timeline.entries[0]!.personalNote, 'A confirmed public note.')
+  assert.equal(timelineText.includes(OWNER_ID), false)
+  assert.equal(timelineText.includes(API_KEY), false)
+  assert.equal(timelineText.includes('private diary note'), false)
   assert.equal(monthly.reports.find(report => report.month === '2026-06')?.status, 'partial')
   assert.equal(monthly.reports.find(report => report.month === '2026-06')?.totalPlaytimeMinutes, 30)
   const repeated = await exportSteamFilmStaticData(db, output, generatedAt)
   assert.equal(await readFile(repeated.archivePath, 'utf8'), archiveText)
   assert.equal(await readFile(repeated.monthlyPath, 'utf8'), monthlyText)
+  assert.equal(await readFile(repeated.timelinePath, 'utf8'), timelineText)
   assert.deepEqual({
     batches: (db.prepare('SELECT COUNT(*) AS count FROM sync_batches').get() as { count: number }).count,
     snapshots: (db.prepare('SELECT COUNT(*) AS count FROM game_playtime_snapshots').get() as { count: number }).count,
@@ -351,6 +361,7 @@ test('the export path works against a genuinely read-only SQLite connection', as
   const databasePath = join(directory, 'archive.sqlite')
   const writable = createStore(new DatabaseSync(databasePath))
   seedPublicGame(writable)
+  createFirstPlayEntry(writable, { steamAppId: 620, gameName: 'Portal 2', firstPlayedOn: '2011-02-19' })
   writable.close()
 
   const readOnly = new DatabaseSync(databasePath, { readOnly: true })
@@ -364,7 +375,8 @@ test('the export path works against a genuinely read-only SQLite connection', as
 
 test('monthly data rejects missing samples and never allocates a cross-month interval as a precise month total', () => {
   const db = createStore(new DatabaseSync(':memory:'))
-  db.prepare('INSERT INTO archive_meta(key, value) VALUES(?, ?)').run('owner_steam_id', OWNER_ID)
+  seedPublicGame(db)
+  createFirstPlayEntry(db, { steamAppId: 620, gameName: 'Portal 2', firstPlayedOn: '2011-02-19' })
   addBatch(db, 'may-end', '2026-05-31T15:59:00.000Z', [{ appId: 620, minutes: 100 }])
   addBatch(db, 'june-start', '2026-05-31T16:01:00.000Z', [{ appId: 620, minutes: 105 }])
   addBatch(db, 'june-gap', '2026-06-02T01:00:00.000Z')
@@ -380,7 +392,7 @@ test('monthly data rejects missing samples and never allocates a cross-month int
   assert.match(monthly.note, /跨月区间不分摊/)
 })
 
-test('read-only export can read an existing archive before the additive history tables have been created', () => {
+test('read-only export from a legacy database without timeline tables publishes no Steam library games', () => {
   const db = new DatabaseSync(':memory:')
   db.exec(`
     CREATE TABLE steam_games (
@@ -395,7 +407,7 @@ test('read-only export can read an existing archive before the additive history 
   db.prepare('INSERT INTO archive_meta(key, value) VALUES(?, ?)').run('owner_steam_id', OWNER_ID)
   db.prepare('INSERT INTO archive_meta(key, value) VALUES(?, ?)').run('last_synced_at', '2026-06-01T00:00:00.000Z')
   const { archive, monthly } = buildSteamFilmStaticData(db, new Date('2026-06-02T00:00:00.000Z'))
-  assert.equal(archive.gameCount, 1)
+  assert.equal(archive.gameCount, 0)
   assert.equal(monthly.status, 'accumulating')
   assert.deepEqual(monthly.reports, [])
 })
@@ -406,6 +418,10 @@ test('static archive validation handles empty data, rejects incompatible records
   assert.equal(isSteamFilmArchive({ ...empty, schemaVersion: 2 }), false)
   assert.equal(isSteamFilmArchive({ ...empty, gameCount: 1 }), false)
   assert.equal(resolveSteamFilmArchiveUrl('/BAKA-Award/', 'https://example.test/BAKA-Award/steam-film'), 'https://example.test/BAKA-Award/data/steam-film/archive.v1.json')
+  const emptyTimeline = { format: 'baka-first-play-timeline', schemaVersion: 1, generatedAt: '2026-10-01T00:00:00.000Z', lastSuccessfulSyncAt: null, timezone: 'Asia/Shanghai', entryCount: 0, dataStatus: 'empty', entries: [] }
+  assert.equal(isFirstPlayTimeline(emptyTimeline), true)
+  assert.equal(isFirstPlayTimeline({ ...emptyTimeline, entryCount: 1 }), false)
+  assert.equal(resolveFirstPlayTimelineUrl('/BAKA-Award/', 'https://example.test/BAKA-Award/steam-film'), 'https://example.test/BAKA-Award/data/steam-film/first-play-timeline.v1.json')
   assert.equal(appPathFromLocation('/BAKA-Award/steam-film', '/BAKA-Award/'), '/steam-film')
   assert.equal(appPathFromLocation('/BAKA-Award', '/BAKA-Award/'), '/')
   assert.equal(appHref('/2026', '/BAKA-Award/'), '/BAKA-Award/2026')

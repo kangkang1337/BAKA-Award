@@ -1,11 +1,12 @@
-# Steam Film Archive
+# Steam Film Archive and First Play Timeline
 
-Steam Film Archive 的网站部分是静态页面。它只读取构建时随站点发布的 JSON，不使用 Steam 登录、Cookie、`/api/steam-film` 或常驻 Node.js 服务。
+Steam 同步和月度快照在本机运行。网站读取随静态站点发布的 JSON，不使用 Steam 登录、Cookie、`/api/steam-film` 或常驻 Node.js 服务。`/steam-film` 展示已确认加入的 First Play Timeline，不再把完整 Steam 库作为默认公开档案。
 
 本机的 Steam 数据流程如下：
 
 ```text
-Steam Web API → 本地同步命令 → 本地 SQLite 与历史快照 → 静态 JSON → 网站胶片墙
+Steam Web API → 本地同步命令 → 本地 SQLite 与历史快照
+                                      ↘ 时间轴匹配资料 → 精简静态 JSON → 网站时间轴
 ```
 
 ## 第一次配置
@@ -78,18 +79,24 @@ npm run steam:network-check
 | 路径 | 用途 |
 | --- | --- |
 | `var/steam-film-static.sqlite` | 静态归档流程的本地游戏档案、同步批次和只追加的累计时长快照；Git 忽略 |
-| `public/data/steam-film/archive.v1.json` | 胶片墙展示所需的公开游戏字段及最后成功同步时间 |
-| `public/data/steam-film/monthly-reel.v1.json` | 月报基础数据、算法版本和统计完整性说明 |
+| `var/imports/heybox-first-play/` | 用户选择导入的原始 CSV/JSON 文件；Git 忽略 |
+| `public/data/steam-film/first-play-timeline.v1.json` | 只包含用户确认加入时间轴的游戏、日期、评语及必要展示资料 |
+| `public/data/steam-film/archive.v1.json` | 兼容旧页面的静态档案；只导出已加入时间轴且匹配 Steam 的游戏 |
+| `public/data/steam-film/monthly-reel.v1.json` | 保留既有快照差统计格式，但只公开已加入时间轴的 Steam 游戏月度条目 |
 | `.env.steam-film.local` | 本机 SteamID64、API Key、数据库路径和可选 Steam API 代理；Git 忽略 |
 
-静态 JSON 是公开文件，任何访问者都可以下载。档案导出不包含 API Key、SteamID64、Cookie、OpenID 信息、个人备注、原始 API 响应、SQLite 文件或逐次快照明细。它会公开游戏名称、Steam AppID、封面、可用的游玩时长和日期字段。发布前仍应自行检查生成结果：
+静态 JSON 是公开文件，任何访问者都可以下载。时间轴仅包含手动添加或确认导入的记录；游戏名称、首次游玩日期、数据来源标签、匹配 Steam 游戏的封面和当前累计时长，以及个人评语会公开。评语不应填写希望保密的内容。兼容档案与月报也仅包含这些已选游戏。导出不包含 API Key、SteamID64、Cookie、OpenID 信息、导入原件、变更历史、SQLite 文件或逐次快照明细。
+
+发布前可检查生成的三份文件：
 
 ```bash
 git status --short
 git diff -- public/data/steam-film
 ```
 
-空白模板表示当前仓库没有可公开的同步数据，不是示例档案。首次本地同步前，页面会显示空状态；加载失败和不兼容的数据版本会分别显示错误信息。
+月报继续使用 SQLite 中的历史累计时长快照，不从首次游玩日期推算时长。没有加入时间轴的游戏不进入公开 JSON。未确认首次游玩日期的记录会出现在单独的待确认区域，不会伪造排序日期。
+
+首次游玩管理和导入模板见[First Play Timeline 指南](first-play-timeline.md)。管理器通过 `npm run timeline:manage` 启动，只绑定 `127.0.0.1`，并在每次记录变更后重新生成静态 JSON。原始 CSV/JSON 留在被 Git 忽略的 `var/imports/heybox-first-play/`，确认前不会写入时间轴记录。
 
 ## Monthly Reel 数据说明
 

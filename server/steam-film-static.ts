@@ -2,6 +2,8 @@ import { mkdir, rename, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import type { DatabaseSync } from 'node:sqlite'
 import { getGames, getMeta } from './index.ts'
+import { listFirstPlayEntries, type FirstPlayEntry } from './first-play-timeline.ts'
+import { resolveSteamCoverUrl } from './steam-cover-overrides.ts'
 
 export interface PublicSteamFilmGame {
   steamAppId: number
@@ -55,6 +57,30 @@ export interface SteamFilmMonthlyReel {
   }>
 }
 
+export interface PublicFirstPlayEntry {
+  id: string
+  steamAppId: number | null
+  customGameId: string | null
+  gameName: string
+  headerImage: string | null
+  firstPlayedOn: string | null
+  datePrecision: 'day' | 'month' | 'year' | 'unknown'
+  source: 'heybox-import' | 'manual' | 'steam-client-get-last-played-times'
+  personalNote: string | null
+  playtimeMinutes: number | null
+}
+
+export interface FirstPlayTimelineStaticData {
+  format: 'baka-first-play-timeline'
+  schemaVersion: 1
+  generatedAt: string
+  lastSuccessfulSyncAt: string | null
+  timezone: 'Asia/Shanghai'
+  entryCount: number
+  dataStatus: 'ready' | 'empty'
+  entries: PublicFirstPlayEntry[]
+}
+
 function monthKey(isoDate: string) {
   const parts = new Intl.DateTimeFormat('en', {
     timeZone: 'Asia/Shanghai',
@@ -101,17 +127,61 @@ function publicGame(row: Record<string, unknown>): PublicSteamFilmGame {
 export function buildSteamFilmStaticData(db: DatabaseSync, generatedAt = new Date()): {
   archive: SteamFilmStaticArchive
   monthly: SteamFilmMonthlyReel
+  timeline: FirstPlayTimelineStaticData
 } {
   const generatedAtIso = generatedAt.toISOString()
+  const dbTables = db.prepare("SELECT COUNT(*) AS count FROM sqlite_master WHERE type = 'table' AND name = 'first_play_entries'").get() as { count: number }
+  const entries = dbTables.count ? listFirstPlayEntries(db) : []
   const games = getGames(db).map(publicGame)
+  const gamesByAppId = new Map(games.map(game => [game.steamAppId, game]))
+  const publicEntries: PublicFirstPlayEntry[] = entries.map((entry: FirstPlayEntry) => ({
+    id: entry.id,
+    steamAppId: entry.steamAppId,
+    customGameId: entry.customGameId,
+    gameName: entry.gameName,
+    headerImage: resolveSteamCoverUrl(entry.steamAppId, entry.headerImage),
+    firstPlayedOn: entry.firstPlayedOn,
+    datePrecision: entry.datePrecision,
+    source: entry.source,
+    personalNote: entry.personalNote,
+    playtimeMinutes: entry.playtimeMinutes,
+  }))
+  const timeline: FirstPlayTimelineStaticData = {
+    format: 'baka-first-play-timeline',
+    schemaVersion: 1,
+    generatedAt: generatedAtIso,
+    lastSuccessfulSyncAt: getMeta(db, 'last_synced_at'),
+    timezone: 'Asia/Shanghai',
+    entryCount: publicEntries.length,
+    dataStatus: publicEntries.length ? 'ready' : 'empty',
+    entries: publicEntries,
+  }
+  const timelineGames = publicEntries.flatMap(entry => {
+    if (entry.steamAppId === null) return []
+    const game = gamesByAppId.get(entry.steamAppId)
+    if (!game) return []
+    return [{
+      ...game,
+      name: entry.gameName,
+      headerImage: resolveSteamCoverUrl(entry.steamAppId, entry.headerImage ?? game.headerImage),
+      firstPlayedAt: entry.firstPlayedOn,
+      firstSeenAt: null,
+      firstAchievementAt: null,
+      lastPlayedAt: null,
+      playtimeMinutes: entry.playtimeMinutes,
+      playtimeRecentMinutes: null,
+      achievementCount: null,
+      achievementTotal: null,
+    }]
+  })
   const archive: SteamFilmStaticArchive = {
     format: 'baka-steam-film-archive',
     schemaVersion: 1,
     generatedAt: generatedAtIso,
     lastSuccessfulSyncAt: getMeta(db, 'last_synced_at'),
-    gameCount: games.length,
-    dataStatus: games.length ? 'ready' : 'empty',
-    games,
+    gameCount: timelineGames.length,
+    dataStatus: timelineGames.length ? 'ready' : 'empty',
+    games: timelineGames,
   }
 
   const ownerId = getMeta(db, 'owner_steam_id')
@@ -146,7 +216,8 @@ export function buildSteamFilmStaticData(db: DatabaseSync, generatedAt = new Dat
     ORDER BY s.captured_at ASC, s.steam_app_id ASC
   `).all() as typeof snapshotRows
 
-  const names = new Map(games.map(game => [game.steamAppId, game.name]))
+  const timelineSteamIds = new Set(publicEntries.flatMap(entry => entry.steamAppId === null ? [] : [entry.steamAppId]))
+  const names = new Map(publicEntries.flatMap(entry => entry.steamAppId === null ? [] : [[entry.steamAppId, entry.gameName] as const]))
   const snapshotsByGame = new Map<number, typeof snapshotRows>()
   const syncsByMonth = new Map<string, Set<string>>()
   const reportData = new Map<string, {
@@ -175,6 +246,7 @@ export function buildSteamFilmStaticData(db: DatabaseSync, generatedAt = new Dat
   }
 
   for (const sample of snapshotRows) {
+    if (!timelineSteamIds.has(sample.steamAppId)) continue
     const month = monthKey(sample.capturedAt)
     ensureMonth(month)
     const gameSamples = snapshotsByGame.get(sample.steamAppId) ?? []
@@ -245,7 +317,7 @@ export function buildSteamFilmStaticData(db: DatabaseSync, generatedAt = new Dat
     note: '月报只计算同一上海自然月内相邻成功批次都含该游戏、且累计时长未倒退的快照差值。跨月区间不分摊；中间批次缺失游戏、异常倒退和缺少基线均不补零。所有结果都是部分统计，不代表完整自然月总时长。',
     reports,
   }
-  return { archive, monthly }
+  return { archive, monthly, timeline }
 }
 
 async function atomicWrite(path: string, content: string) {
@@ -262,10 +334,12 @@ async function atomicWrite(path: string, content: string) {
 }
 
 export async function exportSteamFilmStaticData(db: DatabaseSync, outputDirectory: string, generatedAt = new Date()) {
-  const { archive, monthly } = buildSteamFilmStaticData(db, generatedAt)
+  const { archive, monthly, timeline } = buildSteamFilmStaticData(db, generatedAt)
   const archivePath = join(outputDirectory, 'archive.v1.json')
   const monthlyPath = join(outputDirectory, 'monthly-reel.v1.json')
+  const timelinePath = join(outputDirectory, 'first-play-timeline.v1.json')
   await atomicWrite(archivePath, `${JSON.stringify(archive, null, 2)}\n`)
   await atomicWrite(monthlyPath, `${JSON.stringify(monthly, null, 2)}\n`)
-  return { archivePath, monthlyPath, gameCount: archive.gameCount, monthlyCount: monthly.reports.length }
+  await atomicWrite(timelinePath, `${JSON.stringify(timeline, null, 2)}\n`)
+  return { archivePath, monthlyPath, timelinePath, gameCount: timeline.entryCount, timelineCount: timeline.entryCount, monthlyCount: monthly.reports.length }
 }

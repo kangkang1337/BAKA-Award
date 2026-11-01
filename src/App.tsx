@@ -14,7 +14,7 @@ export default function App() {
   const go = (next: string) => { window.history.pushState({}, '', appHref(next, baseUrl)); setPath(next); window.scrollTo(0, 0) }
   window.onpopstate = () => setPath(appPathFromLocation(window.location.pathname, baseUrl))
   if (path === '/2026/ex/mobile' || path === '/2026/ex/mobile/') return <Suspense fallback={<main style={{ minHeight: '100svh', display: 'grid', placeItems: 'center', color: '#626c6d', background: '#f5f2e9' }}>打开手机里的小日子…</main>}><MobileEx2026 onHome={() => go('/')}/></Suspense>
-  if (path === '/steam-film' || path === '/steam-film/') return <Suspense fallback={<main style={{ minHeight: '100svh', display: 'grid', placeItems: 'center', color: '#d9d1c3', background: '#101217' }}>正在展开 Steam 胶片档案…</main>}><SteamFilmArchive onHome={() => go('/')}/></Suspense>
+  if (path === '/steam-film' || path === '/steam-film/') return <Suspense fallback={<main style={{ minHeight: '100svh', display: 'grid', placeItems: 'center', color: '#d9d1c3', background: '#101217' }}>正在展开首次游玩时间轴…</main>}><SteamFilmArchive onHome={() => go('/')}/></Suspense>
   if (path === '/2025' || path === '/2025/') return <Ceremony data={year2025} onHome={() => go('/')}/>
   if (path === '/2026' || path === '/2026/') return <Ceremony data={year2026} onHome={() => go('/')}/>
   return <Home openCeremony={year => go(`/${year}`)} openMobileEx={() => go('/2026/ex/mobile')} openSteamFilm={() => go('/steam-film')}/>

@@ -2,7 +2,7 @@
   "format": "baka-steam-film-monthly-reel",
   "schemaVersion": 1,
   "timezone": "Asia/Shanghai",
-  "generatedAt": "2026-10-19T07:50:12.519Z",
+  "generatedAt": "2026-11-01T05:50:52.538Z",
   "algorithmVersion": "snapshot-delta-v1",
   "status": "accumulating",
   "note": "月报只计算同一上海自然月内相邻成功批次都含该游戏、且累计时长未倒退的快照差值。跨月区间不分摊；中间批次缺失游戏、异常倒退和缺少基线均不补零。所有结果都是部分统计，不代表完整自然月总时长。",

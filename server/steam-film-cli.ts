@@ -98,8 +98,8 @@ export async function runSteamFilmCommand(
   if (command === 'export') {
     const databasePath = databasePathFromEnvironment(env)
     const result = await exportData(databasePath)
-    console.log(`已导出 ${result.gameCount} 款游戏；月报条目 ${result.monthlyCount}。`)
-    console.log(`公开文件：${result.archivePath} 和 ${result.monthlyPath}`)
+    console.log(`已导出首次游玩时间轴 ${result.timelineCount} 条；月报条目 ${result.monthlyCount}。`)
+    console.log(`公开文件：${result.timelinePath}、${result.archivePath} 和 ${result.monthlyPath}`)
     console.log('导出只读取数据库，不会请求 Steam 或创建历史快照。')
     return
   }
@@ -118,7 +118,7 @@ export async function runSteamFilmCommand(
 
   if (command === 'update') {
     const exported = await exportData(config.databasePath)
-    console.log(`静态 JSON 已更新：${exported.archivePath} 和 ${exported.monthlyPath}`)
+    console.log(`静态 JSON 已更新：${exported.timelinePath}、${exported.archivePath} 和 ${exported.monthlyPath}`)
   }
 }
 

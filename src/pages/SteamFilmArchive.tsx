@@ -1,239 +1,197 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent, type WheelEvent } from 'react'
-import { ArrowLeft, ArrowRight, Clock3, Film, Gamepad2, Info, RotateCw, X } from 'lucide-react'
-import type { SteamFilmArchiveData, SteamFilmGame } from '../types/steam-film'
-import { isSteamFilmArchive, resolveSteamFilmArchiveUrl } from '../data/steam-film-static'
-import '../styles/steam-film-archive.css'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ArrowLeft, CalendarDays, Film, Gamepad2, RotateCw } from 'lucide-react'
+import type { FirstPlayTimelineData, FirstPlayTimelineEntry } from '../types/steam-film'
+import { isFirstPlayTimeline, resolveFirstPlayTimelineUrl } from '../data/steam-film-static'
+import { coverCandidates } from '../data/steam-cover'
+import '../styles/first-play-timeline.css'
 
-const ARCHIVE_URL = resolveSteamFilmArchiveUrl(import.meta.env.BASE_URL, window.location.href)
+const TIMELINE_URL = resolveFirstPlayTimelineUrl(import.meta.env.BASE_URL, window.location.href)
 
-function parseDate(value: string | null): string | null {
-  if (!value) return null
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return null
-  return new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }).format(date)
+function localDateLabel(entry: FirstPlayTimelineEntry) {
+  const value = entry.firstPlayedOn
+  if (!value) return '日期待确认'
+  if (entry.datePrecision === 'year') return `${value} 年`
+  if (entry.datePrecision === 'month') {
+    const [year, month] = value.split('-')
+    return `${year} 年 ${Number(month)} 月`
+  }
+  const [year, month, day] = value.split('-')
+  return `${year} 年 ${Number(month)} 月 ${Number(day)} 日`
 }
 
-function parseDateTime(value: string | null): string | null {
-  if (!value) return null
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return null
-  return new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date)
+function yearFor(entry: FirstPlayTimelineEntry) {
+  return entry.firstPlayedOn?.slice(0, 4) ?? null
 }
 
-function dateDescription(game: SteamFilmGame) {
-  if (game.firstPlayedAt) return { label: '已确认首次游玩', date: parseDate(game.firstPlayedAt) }
-  if (game.firstSeenAt) return { label: '网站首次记录', date: parseDate(game.firstSeenAt) }
-  if (game.firstAchievementAt) return { label: '最早成就解锁', date: parseDate(game.firstAchievementAt) }
-  return { label: '日期待确认', date: null }
+function monthFor(entry: FirstPlayTimelineEntry) {
+  if (!entry.firstPlayedOn) return '待确认日期'
+  if (entry.datePrecision === 'year') return '仅记录到年份'
+  return `${entry.firstPlayedOn.slice(0, 4)}-${entry.firstPlayedOn.slice(5, 7)}`
 }
 
-function dateGroup(game: SteamFilmGame) {
-  if (game.firstPlayedAt) return 0
-  if (game.firstSeenAt) return 1
-  if (game.firstAchievementAt) return 2
-  return 3
+function monthLabel(value: string) {
+  if (value === '仅记录到年份') return value
+  const [year, month] = value.split('-')
+  return `${year} 年 ${Number(month)} 月`
 }
 
-function sortTimeline(games: SteamFilmGame[]) {
-  return [...games].sort((a, b) => {
-    const groupDifference = dateGroup(a) - dateGroup(b)
-    if (groupDifference) return groupDifference
-    const aDate = a.firstPlayedAt ?? a.firstSeenAt ?? a.firstAchievementAt
-    const bDate = b.firstPlayedAt ?? b.firstSeenAt ?? b.firstAchievementAt
-    if (aDate && bDate && aDate !== bDate) return aDate.localeCompare(bDate)
-    return a.name.localeCompare(b.name)
-  })
-}
-
-function duration(minutes: number | null) {
-  if (minutes === null || !Number.isFinite(minutes)) return 'Steam 未提供'
+function durationLabel(minutes: number | null) {
+  if (minutes === null) return null
   const hours = Math.floor(minutes / 60)
-  const remainder = minutes % 60
-  return hours ? `${hours.toLocaleString('zh-CN')} 小时 ${remainder} 分钟` : `${remainder} 分钟`
+  return hours ? `Steam 当前记录 ${hours.toLocaleString('zh-CN')} 小时` : `Steam 当前记录 ${minutes} 分钟`
 }
 
-function FilmCover({ game, className = '' }: { game: SteamFilmGame; className?: string }) {
-  const [failed, setFailed] = useState(false)
-  return <div className={`steam-film-cover ${failed || !game.headerImage ? 'steam-film-cover--missing' : ''} ${className}`}>
-    {game.headerImage && !failed
-      ? <img src={game.headerImage} alt={`${game.name} Steam 封面`} loading="lazy" decoding="async" onError={() => setFailed(true)}/>
-      : <span><Gamepad2 size={23}/><small>FRAME / {String(game.steamAppId).padStart(6, '0')}</small></span>}
+function TimelineCover({ entry }: { entry: FirstPlayTimelineEntry }) {
+  const sources = useMemo(() => coverCandidates(entry.steamAppId, entry.headerImage), [entry.steamAppId, entry.headerImage])
+  const [attempt, setAttempt] = useState(0)
+  const source = sources[attempt]
+
+  if (!source) {
+    return <div className="timeline-card__cover timeline-card__cover--missing">
+      {sources.length ? <span aria-hidden="true">B.</span> : <Gamepad2 size={28} aria-hidden="true"/>}
+    </div>
+  }
+
+  return <div className="timeline-card__cover">
+    <img
+      key={source}
+      src={source}
+      alt={`${entry.gameName} 游戏封面`}
+      loading="lazy"
+      decoding="async"
+      onError={() => setAttempt(current => (current < sources.length ? current + 1 : current))}
+    />
   </div>
 }
 
-function FilmDetails({ game, onClose }: { game: SteamFilmGame; onClose: () => void }) {
-  const date = dateDescription(game)
-  const achievementText = game.achievementCount !== null && game.achievementTotal !== null
-    ? `${game.achievementCount} / ${game.achievementTotal}`
-    : '尚无可靠数据'
+function TimelineCard({ entry }: { entry: FirstPlayTimelineEntry }) {
+  const duration = durationLabel(entry.playtimeMinutes)
+  return <article className="timeline-card">
+    <TimelineCover entry={entry}/>
+    <div className="timeline-card__body">
+      <span className="timeline-card__date">{localDateLabel(entry)} · {entry.datePrecision === 'unknown' ? '待补日期' : `精度：${entry.datePrecision}`}</span>
+      <h3>{entry.gameName}</h3>
+      {duration && <small className="timeline-card__playtime">{duration}</small>}
+      {entry.personalNote && <p className="timeline-card__note">{entry.personalNote}</p>}
+    </div>
+  </article>
+}
 
-  return <section className="steam-film-detail" id="steam-film-detail" aria-live="polite" key={game.steamAppId}>
-    <div className="steam-film-detail__image-wrap">
-      <FilmCover game={game} className="steam-film-detail__image"/>
-      <span className="steam-film-detail__frame-label">FRAME / {String(game.steamAppId).padStart(6, '0')}</span>
-      <span className="steam-film-detail__sprocket" aria-hidden="true">●　●　●　●</span>
-    </div>
-    <div className="steam-film-detail__copy">
-      <div className="steam-film-detail__topline"><span>STEAM APP / {game.steamAppId}</span><button onClick={onClose} aria-label="收起游戏档案"><X size={16}/><span>收起</span></button></div>
-      <h2>{game.name}</h2>
-      <p className="steam-film-detail__archive-note">{game.personalNote || '还没有为这款游戏留下个人备注。'}</p>
-      <dl className="steam-film-facts">
-        <div><dt><Clock3 size={13}/>{date.label}</dt><dd>{date.date ?? '日期待确认'}</dd></div>
-        <div><dt><Clock3 size={13}/>最近游玩</dt><dd>{parseDate(game.lastPlayedAt) ?? 'Steam 未提供'}</dd></div>
-        <div><dt>累计游玩时间</dt><dd>{duration(game.playtimeMinutes)}</dd></div>
-        <div><dt>近期游玩时间</dt><dd>{duration(game.playtimeRecentMinutes)}</dd></div>
-        <div><dt>已解锁成就</dt><dd>{achievementText}</dd></div>
-      </dl>
-      <div className="steam-film-detail__source"><Info size={14}/><span>{game.dataSource || '由本地 Steam Film 同步程序采集并生成静态档案。'}</span></div>
-    </div>
-  </section>
+function dateTimeLabel(value: string | null) {
+  if (!value) return '尚无同步记录'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '同步时间不可用'
+  return new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date)
 }
 
 export function SteamFilmArchive({ onHome }: { onHome: () => void }) {
-  const [archive, setArchive] = useState<SteamFilmArchiveData | null>(null)
-  const [selectedAppId, setSelectedAppId] = useState<number | null>(null)
+  const [timeline, setTimeline] = useState<FirstPlayTimelineData | null>(null)
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [error, setError] = useState('')
-  const viewportRef = useRef<HTMLDivElement>(null)
-  const pointerStart = useRef<{ x: number; scrollLeft: number; pointerId: number } | null>(null)
-  const dragged = useRef(false)
-  const suppressClick = useRef(false)
-  const orderedGames = useMemo(() => sortTimeline(archive?.games ?? []), [archive?.games])
-  const selectedGame = orderedGames.find(game => game.steamAppId === selectedAppId) ?? null
+  const [search, setSearch] = useState('')
+  const [yearFilter, setYearFilter] = useState('all')
 
-  const loadArchive = useCallback(async () => {
+  const loadTimeline = useCallback(async () => {
     setLoadState('loading')
     setError('')
     try {
-      const response = await fetch(ARCHIVE_URL, { credentials: 'omit', cache: 'no-cache' })
-      if (!response.ok) throw new Error(`静态档案暂时无法读取（HTTP ${response.status}）。`)
+      const response = await fetch(TIMELINE_URL, { credentials: 'omit', cache: 'no-cache' })
+      if (!response.ok) throw new Error(`时间轴暂时无法读取（HTTP ${response.status}）。`)
       let value: unknown
-      try {
-        value = await response.json()
-      } catch {
-        throw new Error('档案 JSON 无法解析；请重新生成并发布静态数据。')
-      }
-      if (!isSteamFilmArchive(value)) throw new Error('档案数据格式或版本不兼容；请重新生成 JSON 并发布匹配的网站版本。')
-      setArchive(value)
-      setSelectedAppId(current => value.games.some(game => game.steamAppId === current) ? current : null)
+      try { value = await response.json() } catch { throw new Error('时间轴 JSON 无法解析；请在本地管理器重新生成。') }
+      if (!isFirstPlayTimeline(value)) throw new Error('时间轴数据格式或版本不兼容；请重新生成静态文件。')
+      setTimeline(value)
       setLoadState('ready')
     } catch (reason) {
-      setArchive(null)
+      setTimeline(null)
       setLoadState('error')
       const message = reason instanceof Error ? reason.message : ''
-      setError(message.startsWith('静态档案') || message.startsWith('档案')
-        ? message
-        : '无法连接静态档案文件；请检查 JSON 是否随网站发布，然后重试。')
+      setError(message.startsWith('时间轴') ? message : '无法读取时间轴文件；请确认 JSON 随网站一起生成。')
     }
   }, [])
 
-  useEffect(() => { void loadArchive() }, [loadArchive])
+  useEffect(() => { void loadTimeline() }, [loadTimeline])
 
-  const onWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
-      event.preventDefault()
-      event.currentTarget.scrollLeft += event.shiftKey ? event.deltaY : event.deltaX
+  const years = useMemo(() => [...new Set((timeline?.entries ?? []).filter(entry => entry.firstPlayedOn).map(yearFor).filter((year): year is string => Boolean(year)))].sort((a, b) => b.localeCompare(a)), [timeline?.entries])
+  const filteredEntries = useMemo(() => {
+    const term = search.trim().toLocaleLowerCase('zh-CN')
+    return (timeline?.entries ?? []).filter(entry => {
+      const searchable = `${entry.gameName} ${entry.personalNote ?? ''}`.toLocaleLowerCase('zh-CN')
+      if (term && !searchable.includes(term)) return false
+      if (yearFilter === 'unknown') return !entry.firstPlayedOn
+      if (yearFilter !== 'all' && yearFor(entry) !== yearFilter) return false
+      return true
+    })
+  }, [timeline?.entries, search, yearFilter])
+
+  const pendingEntries = filteredEntries.filter(entry => !entry.firstPlayedOn || entry.datePrecision === 'unknown')
+  const datedEntries = filteredEntries.filter(entry => entry.firstPlayedOn && entry.datePrecision !== 'unknown')
+  const groupedYears = useMemo(() => {
+    const byYear = new Map<string, FirstPlayTimelineEntry[]>()
+    for (const entry of datedEntries) {
+      const year = yearFor(entry)!
+      const entries = byYear.get(year) ?? []
+      entries.push(entry)
+      byYear.set(year, entries)
     }
-  }
+    return [...byYear.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([year, entries]) => {
+      const byMonth = new Map<string, FirstPlayTimelineEntry[]>()
+      for (const entry of entries) {
+        const month = monthFor(entry)
+        const monthEntries = byMonth.get(month) ?? []
+        monthEntries.push(entry)
+        byMonth.set(month, monthEntries)
+      }
+      return { year, months: [...byMonth.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([month, monthEntries]) => ({ month, entries: monthEntries })) }
+    })
+  }, [datedEntries])
 
-  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== 'mouse' || event.button !== 0) return
-    pointerStart.current = { x: event.clientX, scrollLeft: event.currentTarget.scrollLeft, pointerId: event.pointerId }
-    dragged.current = false
-  }
-
-  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    const start = pointerStart.current
-    if (!start || start.pointerId !== event.pointerId || !viewportRef.current) return
-    const delta = event.clientX - start.x
-    if (Math.abs(delta) > 6 && !dragged.current) {
-      dragged.current = true
-      event.currentTarget.setPointerCapture(event.pointerId)
-    }
-    if (dragged.current) {
-      event.preventDefault()
-      viewportRef.current.scrollLeft = start.scrollLeft - delta
-    }
-  }
-
-  const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if (!pointerStart.current || pointerStart.current.pointerId !== event.pointerId) return
-    suppressClick.current = dragged.current
-    pointerStart.current = null
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
-    window.setTimeout(() => { suppressClick.current = false }, 0)
-  }
-
-  const moveTimeline = (direction: -1 | 1) => {
-    viewportRef.current?.scrollBy({ left: direction * Math.max(240, viewportRef.current.clientWidth * .72), behavior: 'smooth' })
-  }
-
-  return <main className="steam-film-page">
-    <header className="steam-film-header">
-      <a className="steam-film-brand" href="/" onClick={event => { event.preventDefault(); onHome() }} aria-label="返回 BAKA AWARD 首页"><span>B.</span><b>BAKA AWARD</b><i>/</i><small>FILM ARCHIVE</small></a>
-      <div className="steam-film-header__right">
-        <span className="steam-film-header__folio">STATIC ARCHIVE / FRAME INDEX</span>
-      </div>
+  const unknownOnly = yearFilter === 'unknown'
+  return <main className="first-play-page">
+    <header className="first-play-header">
+      <a className="first-play-brand" href="/" onClick={event => { event.preventDefault(); onHome() }} aria-label="返回 BAKA AWARD 首页"><span>B.</span><b>BAKA AWARD</b><i>/</i><small>FIRST PLAY TIMELINE</small></a>
+      <span className="first-play-header__folio">PERSONAL GAME HISTORY / 01</span>
     </header>
 
-    <section className="steam-film-intro">
-      <div className="steam-film-intro__copy">
-        <div className="steam-film-kicker"><Film size={14}/> BAKA AWARD — STEAM FILM ARCHIVE</div>
-        <h1>Every game<br/><em>leaves a frame.</em></h1>
-        <p>每一款游戏，都留下过一帧。</p>
+    <section className="first-play-intro">
+      <div>
+        <div className="first-play-kicker"><CalendarDays size={14}/> BAKA AWARD — FIRST PLAY TIMELINE</div>
+        <h1>每段旅程，<br/><em>都有一个开始。</em></h1>
+        <p>记录真正开始体验一款游戏的那一天。未知的日期，就先留在待确认里。</p>
       </div>
-      <div className="steam-film-intro__aside"><span>PERSONAL GAME ARCHIVE</span><b>{archive?.lastSuccessfulSyncAt ? parseDateTime(archive.lastSuccessfulSyncAt) : 'NOT SYNCED'}</b><small>LAST SUCCESSFUL SYNC</small></div>
-      <div className="steam-film-rule" aria-hidden="true"><span>ROLL NO. —</span><i/><span>STEAM COLLECTION</span></div>
+      <div className="first-play-sync"><span>最近一次 Steam 同步</span><b>{dateTimeLabel(timeline?.lastSuccessfulSyncAt ?? null)}</b><small>游戏资料只作辅助，不用于推断首次游玩日</small></div>
+      <div className="first-play-rule"><span>FIRST PLAY / PERSONAL ARCHIVE</span><span>BAKA AWARD · {timeline?.entryCount ?? 0} RECORDS</span></div>
     </section>
 
-    <section className="steam-film-reel" aria-label="Steam 游戏胶片时间轴">
-      <div className="steam-film-reel__heading">
-        <div><span>01 / THE REEL</span><h2>沿着游玩记录，慢慢经过</h2></div>
-        <div className="steam-film-reel__controls">
-          <span aria-live="polite">{loadState === 'loading' ? '读取静态档案…' : loadState === 'error' ? 'ARCHIVE UNAVAILABLE' : `PUBLIC ARCHIVE · ${orderedGames.length} FRAMES`}</span>
-          <button onClick={() => moveTimeline(-1)} aria-label="胶片向左浏览" disabled={loadState !== 'ready' || orderedGames.length === 0}><ArrowLeft size={17}/></button>
-          <button onClick={() => moveTimeline(1)} aria-label="胶片向右浏览" disabled={loadState !== 'ready' || orderedGames.length === 0}><ArrowRight size={17}/></button>
-        </div>
-      </div>
-
-      {loadState === 'ready' && <div className="steam-film-static-notice"><Info size={15}/><span>这是可公开下载的静态档案。Steam 同步需在本机运行 <code>npm run steam:update</code>，随后重新发布生成的 JSON；网页不会连接 Steam 或启动本地程序。最近成功同步：{archive?.lastSuccessfulSyncAt ? parseDateTime(archive.lastSuccessfulSyncAt) : '尚无记录'}。</span></div>}
-
-      {loadState === 'loading' ? <div className="steam-film-empty" role="status"><RotateCw size={23} className="is-spinning"/><p>正在读取静态游戏档案…</p></div>
-      : loadState === 'error' ? <div className="steam-film-empty steam-film-load-error" role="alert"><Film size={25}/><p>档案数据暂时不可用</p><small>{error}</small><button onClick={() => void loadArchive()}><RotateCw size={13}/>重新读取</button></div>
-      : orderedGames.length ? <div className="steam-film-viewport-wrap">
-        <div className="steam-film-tape-cap steam-film-tape-cap--left" aria-hidden="true"/>
-        <div className="steam-film-viewport" ref={viewportRef} onWheel={onWheel} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}>
-          <ol className="steam-film-track" aria-label="Steam 游戏静态档案">
-            {orderedGames.map((game, index) => {
-              const isSelected = selectedAppId === game.steamAppId
-              const date = dateDescription(game)
-              return <li className={`steam-film-frame ${isSelected ? 'is-selected' : ''}`} key={game.steamAppId}>
-                <button className="steam-film-frame__button" aria-expanded={isSelected} aria-controls={isSelected ? 'steam-film-detail' : undefined} onClick={() => {
-                  if (suppressClick.current) return
-                  setSelectedAppId(current => current === game.steamAppId ? null : game.steamAppId)
-                }}>
-                  <span className="steam-film-frame__top"><span>FRAME {String(index + 1).padStart(2, '0')}</span><i>BA / {String(game.steamAppId).slice(-4)}</i></span>
-                  <FilmCover game={game}/>
-                  <span className="steam-film-frame__caption"><b>{game.name}</b><small>{date.date ? `${date.label} · ${date.date}` : date.label}</small></span>
-                  <span className="steam-film-frame__bottom"><i>{date.date?.slice(0, 4) ?? 'DATE / ?'}</i><span>{isSelected ? 'OPEN FRAME' : 'SELECT FRAME'}</span></span>
-                </button>
-              </li>
-            })}
-            <li className="steam-film-end" aria-label="胶片结尾"><span>END<br/>OF<br/>REEL</span></li>
-          </ol>
-        </div>
-        <div className="steam-film-tape-cap steam-film-tape-cap--right" aria-hidden="true"/>
-      </div> : <div className="steam-film-empty"><Film size={25}/><p>{archive?.lastSuccessfulSyncAt ? '最近一次同步没有记录可展示的游戏。' : '还没有生成 Steam 游戏档案。'}</p><small>在本地配置 Steam API Key 后运行 npm run steam:update，再将公开 JSON 与网站一起发布。游戏详情隐私设置可能影响 Steam 返回的数据。</small></div>}
-
-      <div className="steam-film-reel__foot"><span>← 拖动胶片 / 横向滚轮浏览 →</span><span>触屏可横向滑动 · 点击画格展开</span></div>
-
-      {selectedGame
-        ? <FilmDetails game={selectedGame} onClose={() => setSelectedAppId(null)}/>
-        : <div className="steam-film-selection-hint"><i/><span>从任意一格开始。相邻的帧，会带你回到另一个世界。</span></div>}
+    <section className="first-play-controls" aria-label="时间轴筛选">
+      <input type="search" value={search} onChange={event => setSearch(event.currentTarget.value)} placeholder="搜索游戏名称或评语" aria-label="搜索游戏名称或评语" />
+      <select value={yearFilter} onChange={event => setYearFilter(event.currentTarget.value)} aria-label="按年份筛选">
+        <option value="all">全部年份</option>
+        <option value="unknown">待确认日期</option>
+        {years.map(year => <option value={year} key={year}>{year} 年</option>)}
+      </select>
     </section>
 
-    <section className="steam-film-date-note"><span>DATE / SOURCE NOTES</span><p>首次游玩、网站首次记录、最早成就和最近游玩会分开标注。Steam 常规接口不能证明首次启动日期；无法可靠确认时，时间留空。静态 JSON 面向所有访客公开，月度统计只在本地历史快照提供足够证据后生成。</p></section>
+    <div className="first-play-status"><span>{loadState === 'loading' ? '正在读取时间轴…' : loadState === 'error' ? 'TIMELINE UNAVAILABLE' : `${filteredEntries.length} 条个人记录`}</span><span>{timeline ? `数据生成于 ${dateTimeLabel(timeline.generatedAt)}` : 'STATIC FIRST PLAY ARCHIVE'}</span></div>
 
-    <footer className="steam-film-footer"><button onClick={onHome}><ArrowLeft size={14}/>回到 BAKA AWARD 年度档案</button><span>END OF THIS REEL · TO BE CONTINUED</span></footer>
+    {loadState === 'loading' ? <div className="first-play-empty" role="status"><RotateCw size={22} className="is-spinning"/><p>正在展开个人时间轴…</p></div>
+      : loadState === 'error' ? <div className="first-play-error" role="alert"><Film size={24}/><p>时间轴暂时无法读取</p><small>{error}</small><button onClick={() => void loadTimeline()}><RotateCw size={13}/>重新读取</button></div>
+        : !filteredEntries.length ? <div className="first-play-empty"><Gamepad2 size={26}/><p>{timeline?.entryCount ? '没有匹配的记录。' : '这段时间轴还没有记录。'}</p><small>{timeline?.entryCount ? '调整搜索文字或年份筛选。' : '在本地运行 npm run timeline:manage，手动添加游戏或导入已经整理好的历史记录。未知日期可以留空，之后再补充。'}</small></div>
+          : <>
+            {!unknownOnly && groupedYears.map(group => <section className="timeline-section" key={group.year}>
+              <div className="timeline-section__heading"><div><span>YEAR / {group.year}</span><h2>{group.year}</h2></div><small>{group.months.reduce((count, month) => count + month.entries.length, 0)} 款游戏</small></div>
+              {group.months.map(month => <section className="timeline-month" key={`${group.year}-${month.month}`}>
+                <h3 className="timeline-month__heading">{monthLabel(month.month)}</h3>
+                <div className="timeline-grid">{month.entries.map(entry => <TimelineCard entry={entry} key={entry.id}/>)}</div>
+              </section>)}
+            </section>)}
+            {pendingEntries.length > 0 && <section className="timeline-section">
+              <div className="timeline-section__heading"><div><span>DATE / TO BE CONFIRMED</span><h2>待确认</h2></div><small>{pendingEntries.length} 款游戏</small></div>
+              <div className="timeline-grid">{pendingEntries.map(entry => <TimelineCard entry={entry} key={entry.id}/>)}</div>
+            </section>}
+          </>}
+
+    <section className="first-play-date-note"><span>DATE / SOURCE NOTES</span><p>首次游玩日期来自个人确认或导入的个人记录，不从累计时长、最后游玩、成就或网站首次发现日期推断。时间轴只包含手动加入或确认导入的游戏；未进入时间轴的 Steam 游戏不会出现在此页面。</p></section>
+    <footer className="first-play-footer"><a href="/" onClick={event => { event.preventDefault(); onHome() }}><ArrowLeft size={13}/>回到 BAKA AWARD 年度档案</a><span>ONE JOURNEY AT A TIME</span></footer>
   </main>
 }

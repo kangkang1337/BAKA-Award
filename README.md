@@ -20,17 +20,29 @@ npm run build
 npm run preview
 ```
 
+## First Play Timeline
+
+`/steam-film` 现在展示个人首次游玩时间轴。运行本地管理器：
+
+```bash
+npm run timeline:manage
+```
+
+它只监听 `127.0.0.1`，使用已有的 `var/steam-film-static.sqlite`，添加或确认记录后自动生成静态时间轴 JSON。小黑盒历史文件、导入原件与 SQLite 都留在被 Git 忽略的 `var/` 下。导入模板、字段和冲突处理见[时间轴指南](docs/first-play-timeline.md)。
+
+首次游玩日期只取个人确认或导入的历史记录，不从 Steam 累计时长、成就、最后游玩时间或网站首次记录推断。加入时间轴的游戏和评语会在网站上公开。
+
 ## Steam Film Archive
 
-页面读取 `public/data/steam-film/` 中的静态 JSON。Steam 同步和历史快照在本机运行，不需要网站后端常驻，也不会由网页直接连接 Steam。配置与更新方法见[Steam Film Archive 指南](docs/steam-film-archive.md)。
+Steam 同步和历史快照仍在本机运行，不需要网站后端常驻，也不会由网页直接连接 Steam。时间轴游戏可以匹配 Steam 档案封面与当前时长；未加入时间轴的游戏不会输出到公开档案。配置与同步方法见[Steam Film Archive 指南](docs/steam-film-archive.md)。
 
-生成的数据文件面向访客公开。每次发布前请检查 JSON 中的游戏资料，并确认愿意公开；本地 SQLite 数据库和 API Key 不应上传。
+生成的数据文件面向访客公开。时间轴中的评语也会公开；本地 SQLite、原始导入文件、SteamID64 和 API Key 不应上传。
 
 ## 项目结构
 
 ```text
 src/                 React 页面、组件、年度内容与样式
-server/              Steam Film 本地同步、SQLite 快照与导出工具
+server/              Steam 本地同步、SQLite 快照、首次游玩管理与导出工具
 public/data/          静态网站读取的数据文件
 public/images/       本地图片资源（由 .gitignore 排除）
 docs/                开发、Steam Film 与部署说明

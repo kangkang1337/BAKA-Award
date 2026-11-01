@@ -5,6 +5,7 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { pathToFileURL } from 'node:url'
 import { resolveSteamProxySettings, safeSystemErrorCode, SteamOperationError, createSteamHttpClient } from './steam-film-http.ts'
+import { createFirstPlayTimelineSchema } from './first-play-timeline.ts'
 
 const OPENID_ENDPOINT = 'https://steamcommunity.com/openid/login'
 const STEAM_GAMES_ENDPOINT = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/'
@@ -162,6 +163,7 @@ export function createStore(db: DatabaseSync) {
     CREATE INDEX IF NOT EXISTS sessions_expiry_idx ON sessions(expires_at);
     CREATE INDEX IF NOT EXISTS login_nonces_expiry_idx ON login_nonces(expires_at);
   `)
+  createFirstPlayTimelineSchema(db)
   return db
 }
 
